@@ -12,10 +12,7 @@ export class CreateUserDto {
 
     @IsString()
     @IsNotEmpty()
-    @MinLength(6)
-    @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
-        message: 'Password must contain at least one lowercase letter, one uppercase letter, and one number',
-    })
+    @MinLength(8, { message: 'Password must be at least 8 characters long' })
     password: string;
 
 }

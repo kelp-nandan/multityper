@@ -1,7 +1,7 @@
-import { Component, signal } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { Component, signal } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
@@ -23,7 +23,7 @@ interface AuthResponse {
   selector: 'app-login',
   imports: [ReactiveFormsModule, CommonModule, HttpClientModule],
   templateUrl: './login.html',
-  styleUrls: ['./login.css']
+  styleUrls: ['./login.scss']
 })
 export class Login {
   isLoginMode = signal(true);
@@ -34,8 +34,6 @@ export class Login {
   loginForm: FormGroup;
   registerForm: FormGroup;
 
-  private apiUrl = 'http://localhost:3000/api/users';
-
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
@@ -44,7 +42,7 @@ export class Login {
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required]]
     });
 
     this.registerForm = this.fb.group({
@@ -52,8 +50,7 @@ export class Login {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [
         Validators.required,
-        Validators.minLength(6),
-        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+        Validators.minLength(8)
       ]]
     });
   }
@@ -73,12 +70,9 @@ export class Login {
         next: (response) => {
           this.isLoading.set(false);
           if (response.success && response.data.user) {
-            // Tokens are now in httpOnly cookies, only store user data
             this.authService.setUserData(response.data.user);
             this.successMessage.set('Login successful! Redirecting...');
-            setTimeout(() => {
-              this.router.navigate(['/homepage']);
-            }, 1000);
+            this.router.navigate(['/homepage']);
           }
         },
         error: (error) => {
@@ -121,9 +115,11 @@ export class Login {
     if (control?.errors && control.touched) {
       if (control.errors['required']) return `${field} is required`;
       if (control.errors['email']) return 'Invalid email format';
-      if (control.errors['minlength']) return `${field} is too short`;
+      if (control.errors['minlength']) return `${field} must be at least ${control.errors['minlength'].requiredLength} characters`;
       if (control.errors['pattern']) {
-        if (field === 'password') return 'Password must contain uppercase, lowercase and number';
+        if (field === 'password' && form === this.registerForm) {
+          return 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character';
+        }
       }
     }
     return '';

@@ -12,7 +12,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
                 (request: Request) => {
                     return request?.cookies?.access_token;
                 },
-                ExtractJwt.fromAuthHeaderAsBearerToken(), // Fallback for backwards compatibility
+                ExtractJwt.fromAuthHeaderAsBearerToken(),
             ]),
             ignoreExpiration: false,
             secretOrKey: configService.get<string>('jwt.secret') || 'default-secret-key',
@@ -22,8 +22,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     async validate(payload: any) {
         return {
             id: payload.sub,
-            userId: payload.userId,      // For game requirements (same as id)
-            name: payload.name,          // For game requirements (user's name)
+            userId: payload.userId,
+            name: payload.name,
             email: payload.email
         };
     }

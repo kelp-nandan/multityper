@@ -3,18 +3,38 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auths/guards/jwt-auth.guard';
+import { ENV } from '../config/env.config';
 
 @Controller('api/users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) { }
 
     @Post('register')
-    async register(@Body(ValidationPipe) createUserDto: CreateUserDto) {
+    async register(
+        @Body(ValidationPipe) createUserDto: CreateUserDto,
+        @Res({ passthrough: true }) response: any
+    ) {
         const user = await this.usersService.register(createUserDto);
+        const { accessToken, refreshToken } = await this.usersService.generateTokensForUser(user.id);
+
+        response.cookie('access_token', accessToken, {
+            httpOnly: true,
+            secure: ENV.isProduction(),
+            sameSite: 'lax',
+            maxAge: 15 * 60 * 1000,
+        });
+
+        response.cookie('refresh_token', refreshToken, {
+            httpOnly: true,
+            secure: ENV.isProduction(),
+            sameSite: 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+
         return {
             success: true,
             message: 'user registered successfully',
-            data: user,
+            data: { user },
         };
     }
 
@@ -25,20 +45,18 @@ export class UsersController {
     ) {
         const { user, accessToken, refreshToken } = await this.usersService.login(loginUserDto);
 
-        // Set access token in httpOnly cookie (15 min)
         response.cookie('access_token', accessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 15 * 60 * 1000, // 15 minutes
+            secure: ENV.isProduction(),
+            sameSite: 'lax',
+            maxAge: 15 * 60 * 1000,
         });
 
-        // Set refresh token in httpOnly cookie (7 days)
         response.cookie('refresh_token', refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            secure: ENV.isProduction(),
+            sameSite: 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
         return {
@@ -66,7 +84,9 @@ export class UsersController {
         return {
             success: true,
             message: 'profile retrived successfully',
-            data: req.user,
+            data: {
+                user: req.user
+            },
         };
     }
 
@@ -78,23 +98,34 @@ export class UsersController {
         const refreshToken = request.cookies?.refresh_token;
 
         if (!refreshToken) {
-            throw new Error('Refresh token not found');
+            return {
+                success: false,
+                message: 'Refresh token not found',
+            };
         }
 
-        const { accessToken } = await this.usersService.refreshAccessToken(refreshToken);
+        try {
+            const { accessToken } = await this.usersService.refreshAccessToken(refreshToken);
 
-        // Set new access token in httpOnly cookie
-        response.cookie('access_token', accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 15 * 60 * 1000,
-        });
+            response.cookie('access_token', accessToken, {
+                httpOnly: true,
+                secure: ENV.isProduction(),
+                sameSite: 'lax',
+                maxAge: 15 * 60 * 1000,
+            });
 
-        return {
-            success: true,
-            message: 'token refreshed successfully',
-        };
+            return {
+                success: true,
+                message: 'token refreshed successfully',
+            };
+        } catch (error) {
+            response.clearCookie('access_token');
+            response.clearCookie('refresh_token');
+            return {
+                success: false,
+                message: 'Invalid or expired refresh token',
+            };
+        }
     }
 
     @Post('logout')
@@ -108,7 +139,6 @@ export class UsersController {
             await this.usersService.revokeRefreshToken(refreshToken);
         }
 
-        // Clear cookies
         response.clearCookie('access_token');
         response.clearCookie('refresh_token');
 

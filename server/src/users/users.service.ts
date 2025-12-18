@@ -1,70 +1,65 @@
-import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Injectable, ConflictException, UnauthorizedException, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { Sequelize } from 'sequelize';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import { User } from './entities/user.entity';
-import { RefreshToken } from './entities/refresh-token.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { DatabaseQueries } from '../database/queries';
 
 @Injectable()
 export class UsersService {
+    private dbQueries: DatabaseQueries;
+
     constructor(
-        @InjectRepository(User)
-        private UserRepository: Repository<User>,
-        @InjectRepository(RefreshToken)
-        private refreshTokenRepository: Repository<RefreshToken>,
+        @Inject('SEQUELIZE')
+        private sequelize: Sequelize,
         private jwtService: JwtService,
         private configService: ConfigService,
-    ) { }
+    ) {
+        this.dbQueries = new DatabaseQueries(sequelize);
+    }
 
-    async register(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
+    async register(createUserDto: CreateUserDto): Promise<Omit<any, 'password'>> {
         const { name, email, password } = createUserDto;
 
-        const existingUser = await this.UserRepository.findOne({ where: { email } });
-        if (existingUser) {
+        // Check if email is already taken
+        const userExists = await this.dbQueries.checkUserExists(email);
+        if (userExists) {
             throw new ConflictException('Email already in use');
         }
 
-        // Client sends pre-hashed password (with fixed salt for consistency)
-        // Hash it again on server with proper random salt for security
         const saltRounds = 12;
+        // Password comes pre-hashed from frontend, add server-side bcrypt
         const serverHash = await bcrypt.hash(password, saltRounds);
 
-        const user = this.UserRepository.create({
-            name,
-            email,
-            password: serverHash,
-        });
-
-        const savedUser = await this.UserRepository.save(user);
-        const { password: _, ...result } = savedUser;
-        return result;
+        // Save new user to database
+        const newUser = await this.dbQueries.createUser(name, email, serverHash);
+        return newUser;
     }
 
-    async login(LoginUserDto: LoginUserDto): Promise<{ user: Omit<User, 'password'>, accessToken: string, refreshToken: string }> {
+    async login(LoginUserDto: LoginUserDto): Promise<{ user: Omit<any, 'password'>, accessToken: string, refreshToken: string }> {
         const { email, password } = LoginUserDto;
 
-        const user = await this.UserRepository.findOne({ where: { email } });
+        // Look up user by email address
+        const user = await this.dbQueries.findUserByEmail(email);
         if (!user) {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        // Client sends pre-hashed password, compare with server hash
+        // Verify password matches stored hash
         const isPasswordValid = await bcrypt.compare(password, user.password);
+
         if (!isPasswordValid) {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        // JWT payload with userId and name for game requirements
         const payload = {
             email: user.email,
-            sub: user.id,           // Standard JWT claim for user ID
-            userId: user.id,        // Explicit userId for game requirements
-            name: user.name         // User's name for game requirements
+            sub: user.id,
+            userId: user.id,
+            name: user.name
         };
         const accessToken = this.jwtService.sign(payload);
         const refreshToken = await this.generateRefreshToken(user.id);
@@ -83,45 +78,59 @@ export class UsersService {
         const refreshExpireDays = this.configService.get<number>('jwt.refreshExpiresInDays') || 7;
         expiresAt.setDate(expiresAt.getDate() + refreshExpireDays);
 
-        const refreshToken = this.refreshTokenRepository.create({
-            token,
-            userId,
-            expiresAt,
-        });
-
-        await this.refreshTokenRepository.save(refreshToken);
+        // Store refresh token in database
+        await this.dbQueries.createRefreshToken(token, userId, expiresAt);
         return token;
     }
 
     async refreshAccessToken(refreshToken: string): Promise<{ accessToken: string }> {
-        const storedToken = await this.refreshTokenRepository.findOne({
-            where: { token: refreshToken },
-            relations: ['user'],
-        });
+        // Find refresh token with user data using centralized query
+        const storedToken = await this.dbQueries.findRefreshTokenWithUser(refreshToken);
 
-        if (!storedToken || storedToken.revoked || storedToken.expiresAt < new Date()) {
+        if (!storedToken) {
             throw new UnauthorizedException('Invalid or expired refresh token');
         }
 
-        const payload = { email: storedToken.user.email, sub: storedToken.user.id, name: storedToken.user.name };
+        if (storedToken.revoked || new Date(storedToken.expires_at) < new Date()) {
+            throw new UnauthorizedException('Invalid or expired refresh token');
+        }
+
+        const payload = {
+            email: storedToken.email,
+            sub: storedToken.user_id,
+            name: storedToken.name
+        };
         const accessToken = this.jwtService.sign(payload);
 
         return { accessToken };
+    } async revokeRefreshToken(refreshToken: string): Promise<void> {
+        // Revoke refresh token using centralized query
+        await this.dbQueries.revokeRefreshToken(refreshToken);
     }
 
-    async revokeRefreshToken(refreshToken: string): Promise<void> {
-        const storedToken = await this.refreshTokenRepository.findOne({
-            where: { token: refreshToken },
-        });
+    async findAll(): Promise<Omit<any, 'password'>[]> {
+        // Get all users using centralized query
+        return await this.dbQueries.getAllUsers();
+    }
 
-        if (storedToken) {
-            storedToken.revoked = true;
-            await this.refreshTokenRepository.save(storedToken);
+    async generateTokensForUser(userId: number): Promise<{ accessToken: string, refreshToken: string }> {
+        // Find user by ID using centralized query
+        const user = await this.dbQueries.findUserById(userId);
+
+        if (!user) {
+            throw new UnauthorizedException('User not found');
         }
-    }
 
-    async findAll(): Promise<Omit<User, 'password'>[]> {
-        const users = await this.UserRepository.find();
-        return users.map(({ password, ...user }) => user);
+        const payload = {
+            email: user.email,
+            sub: user.id,
+            userId: user.id,
+            name: user.name
+        };
+
+        const accessToken = this.jwtService.sign(payload);
+        const refreshToken = await this.generateRefreshToken(user.id);
+
+        return { accessToken, refreshToken };
     }
 }

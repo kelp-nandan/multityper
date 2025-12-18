@@ -1,9 +1,10 @@
-import { Injectable, signal, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, interval, Subscription } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import * as bcrypt from 'bcryptjs';
+import * as CryptoJS from 'crypto-js';
+import { Observable, Subscription, interval } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 interface User {
   id: number;
@@ -25,12 +26,14 @@ interface AuthResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/api/users';
+  private apiUrl = `${environment.apiUrl}/users`;
   currentUser = signal<User | null>(null);
   isAuthenticated = signal<boolean>(false);
   private platformId = inject(PLATFORM_ID);
   private isBrowser: boolean;
   private tokenCheckSubscription?: Subscription;
+  private authCheckCompleted = false;
+  private authCheckPromise?: Promise<void>;
 
   constructor(
     private http: HttpClient,
@@ -38,52 +41,75 @@ export class AuthService {
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     if (this.isBrowser) {
-      this.loadUserFromStorage();
       this.startTokenExpiryCheck();
     }
   }
 
-  private loadUserFromStorage() {
-    if (!this.isBrowser) return;
+  async waitForAuthCheck(): Promise<boolean> {
+    if (!this.isBrowser) {
+      return false;
+    }
 
-    // Check if user is authenticated by trying to get profile
-    this.getUserProfile().subscribe({
-      next: (response) => {
-        if (response.success && response.data.user) {
-          this.currentUser.set(response.data.user);
-          this.isAuthenticated.set(true);
+    if (this.authCheckCompleted) {
+      return this.isAuthenticated();
+    }
+
+    if (this.authCheckPromise) {
+      await this.authCheckPromise;
+      return this.isAuthenticated();
+    }
+
+    this.authCheckPromise = this.loadUserFromStorage();
+    await this.authCheckPromise;
+    this.authCheckCompleted = true;
+    return this.isAuthenticated();
+  }
+
+  private loadUserFromStorage(): Promise<void> {
+    if (!this.isBrowser) return Promise.resolve();
+
+    return new Promise((resolve) => {
+      this.getUserProfile().subscribe({
+        next: (response) => {
+          if (response.success && response.data.user) {
+            this.currentUser.set(response.data.user);
+            this.isAuthenticated.set(true);
+          } else {
+            this.currentUser.set(null);
+            this.isAuthenticated.set(false);
+          }
+          resolve();
+        },
+        error: () => {
+          this.currentUser.set(null);
+          this.isAuthenticated.set(false);
+          resolve();
         }
-      },
-      error: () => {
-        this.currentUser.set(null);
-        this.isAuthenticated.set(false);
-      }
+      });
     });
   }
 
   private hashPassword(password: string): string {
-    // Use SHA-256 for consistent client-side hashing (same input = same hash)
-    // This hides the password in network tab while being deterministic
-    return bcrypt.hashSync(password, '$2a$10$abcdefghijklmnopqrstuv');
+    // Apply SHA-256 hashing to match backend expectation
+    return CryptoJS.SHA256(password).toString();
   }
 
   login(email: string, password: string): Observable<AuthResponse> {
+    // Hash password on client-side to prevent plain text transmission
     const hashedPassword = this.hashPassword(password);
     return this.http.post<AuthResponse>(
       `${this.apiUrl}/login`,
       { email, password: hashedPassword },
-      { withCredentials: true } // Send cookies with request
+      { withCredentials: true }
     );
   }
 
   register(userData: any): Observable<AuthResponse> {
+    // Hash password on client-side to prevent plain text transmission
     const hashedPassword = this.hashPassword(userData.password);
     return this.http.post<AuthResponse>(
       `${this.apiUrl}/register`,
-      {
-        ...userData,
-        password: hashedPassword
-      },
+      { ...userData, password: hashedPassword },
       { withCredentials: true }
     );
   }
@@ -96,7 +122,7 @@ export class AuthService {
   getUserProfile(): Observable<AuthResponse> {
     return this.http.get<AuthResponse>(
       `${this.apiUrl}/profile`,
-      { withCredentials: true } // Cookies sent automatically
+      { withCredentials: true }
     );
   }
 
@@ -107,36 +133,25 @@ export class AuthService {
       await this.http.post(
         `${this.apiUrl}/logout`,
         {},
-        { withCredentials: true } // Send cookies for backend to revoke
+        { withCredentials: true }
       ).toPromise();
     } catch (error) {
-      console.error('Logout error:', error);
+      // Logout failed but continue with local cleanup
     }
 
     this.currentUser.set(null);
     this.isAuthenticated.set(false);
+    this.authCheckCompleted = false;
+    this.authCheckPromise = undefined;
     this.tokenCheckSubscription?.unsubscribe();
-    this.router.navigate(['/']);
+    this.router.navigate(['/login']);
   }
 
-  // Tokens are now in httpOnly cookies, no need to access them from JS
-
   private startTokenExpiryCheck() {
-    // Check authentication status every 5 minutes
     this.tokenCheckSubscription = interval(5 * 60000).subscribe(async () => {
       if (this.isAuthenticated()) {
-        // Try to refresh the token periodically
-        try {
-          await this.http.post<AuthResponse>(
-            `${this.apiUrl}/refresh`,
-            {},
-            { withCredentials: true }
-          ).toPromise();
-          // Token refreshed successfully (new cookie set by backend)
-        } catch (error) {
-          console.error('Token refresh failed:', error);
-          // If refresh fails, logout
-          alert('Your session has expired. Please login again.');
+        const refreshed = await this.refreshToken();
+        if (!refreshed) {
           this.logout();
         }
       }
@@ -153,13 +168,9 @@ export class AuthService {
         { withCredentials: true }
       ).toPromise();
 
-      if (response?.success) {
-        // New access token cookie set by backend
-        return true;
-      }
+      return response?.success || false;
     } catch (error) {
-      console.error('Token refresh failed:', error);
+      return false;
     }
-    return false;
   }
 }

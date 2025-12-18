@@ -1,8 +1,7 @@
-import { Component, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { response } from 'express';
 
 interface User {
   id: number;
@@ -30,37 +29,7 @@ export class Homepage implements OnInit {
   ) { }
 
   ngOnInit() {
-    //user authentication check
-    if (!this.authService.isAuthenticated()) {
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    //user load 
-    const currentUser = this.authService.currentUser();
-    if (currentUser) {
-      this.user.set(currentUser);
-    } else {
-      this.fetchUserProfile();
-    }
-  }
-
-
-  fetchUserProfile() {
-    this.isLoading.set(true);
-    this.authService.getUserProfile().subscribe({
-      next: (response) => {
-        this.isLoading.set(false);
-        if (response.success && response.data.user) {
-          this.user.set(response.data.user);
-        }
-      },
-      error: (error) => {
-        this.isLoading.set(false);
-        console.error('Error fetching user profile:', error);
-        this.authService.logout();
-      }
-    });
+    this.user.set(this.authService.currentUser());
   }
 
 

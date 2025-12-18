@@ -21,5 +21,12 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  "exclude": [
+    "migrations/**/*",
+    "models/**/*",
+    "config/config.json",
+    "dist",
+    "node_modules"
+  ]
 }

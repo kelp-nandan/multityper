@@ -1,0 +1,281 @@
+// Color Variables
+$primary: #6366f1;
+$primary-dark: #5855eb;
+$primary-gradient-start: #667eea;
+$primary-gradient-end: #764ba2;
+$success: #10b981;
+$success-bg: #d1fae5;
+$success-border: #a7f3d0;
+$success-text: #065f46;
+$error: #ef4444;
+$error-bg: #fee2e2;
+$error-border: #fca5a5;
+$error-text: #dc2626;
+$input-border: #d1d5db;
+$input-focus-shadow: rgba(99, 102, 241, 0.1);
+$input-error-shadow: rgba(239, 68, 68, 0.1);
+$input-placeholder: #9ca3af;
+$header: #1f2937;
+$label: #374151;
+$toggle-border: #e5e7eb;
+$text-muted: #6b7280;
+
+// Container and Card Styling
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, $primary-gradient-start 0%, $primary-gradient-end 100%);
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.auth-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    width: 100%;
+    max-width: 420px;
+    animation: slideIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Header Styling
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+
+    h2 {
+        color: $header;
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+    }
+
+    p {
+        color: $text-muted;
+        font-size: 1rem;
+        margin: 0;
+    }
+}
+
+// Alert Messages
+.alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+
+    &-success {
+        background-color: $success-bg;
+        color: $success-text;
+        border: 1px solid $success-border;
+    }
+
+    &-error {
+        background-color: $error-bg;
+        color: $error-text;
+        border: 1px solid $error-border;
+    }
+}
+
+// Form Styling
+.auth-form {
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+
+    label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: $label;
+        margin-bottom: 0.5rem;
+    }
+
+    input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid $input-border;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.2s ease-in-out;
+        box-sizing: border-box;
+        background-color: #ffffff;
+
+        &:focus {
+            outline: none;
+            border-color: $primary;
+            box-shadow: 0 0 0 3px $input-focus-shadow;
+        }
+
+        &.error {
+            border-color: $error;
+
+            &:focus {
+                border-color: $error;
+                box-shadow: 0 0 0 3px $input-error-shadow;
+            }
+        }
+
+        &::placeholder {
+            color: $input-placeholder;
+        }
+
+        &:hover {
+            border-color: $input-placeholder;
+        }
+
+        &:valid:not(:placeholder-shown) {
+            border-color: $success;
+        }
+    }
+}
+
+// Error Text
+.error-text {
+    display: block;
+    color: $error;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    font-weight: 500;
+}
+
+// Button Styling
+.btn {
+    width: 100%;
+    padding: 0.875rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    &-primary {
+        background-color: $primary;
+        color: white;
+
+        &:hover:not(:disabled) {
+            background-color: $primary-dark;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        &:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        &:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+        }
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+
+        .spinner+span {
+            opacity: 0.7;
+        }
+    }
+}
+
+// Spinner Animation
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// Toggle Section
+.auth-toggle {
+    text-align: center;
+    padding-top: 1rem;
+    border-top: 1px solid $toggle-border;
+
+    p {
+        color: $text-muted;
+        font-size: 0.875rem;
+        margin: 0;
+    }
+}
+
+.link-btn {
+    background: none;
+    border: none;
+    color: $primary;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    margin-left: 0.25rem;
+    transition: color 0.2s ease-in-out;
+
+    &:hover {
+        color: $primary-dark;
+        text-decoration: underline;
+    }
+
+    &:focus {
+        outline: none;
+        text-decoration: underline;
+    }
+}
+
+// Responsive Design
+@media (max-width: 640px) {
+    .auth-container {
+        padding: 1rem;
+    }
+
+    .auth-card {
+        padding: 2rem 1.5rem;
+        margin: 0;
+    }
+
+    .auth-header h2 {
+        font-size: 1.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 1.5rem 1rem;
+    }
+
+    .auth-header h2 {
+        font-size: 1.5rem;
+    }
+}
