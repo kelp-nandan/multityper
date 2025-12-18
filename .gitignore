@@ -83,6 +83,8 @@ temp/
 # Database migration documentation
 DATABASE_MIGRATIONS.md
 database_migrations.md
+DATABASE_INTEGRATION_WORKFLOW.md
+
 
 # Editor backups
 *~
