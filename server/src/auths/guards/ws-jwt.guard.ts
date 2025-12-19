@@ -8,11 +8,18 @@ export class WsJwtGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const client: Socket = context.switchToWs().getClient<Socket>();
-    const token = client.handshake.auth?.access_token;
 
-    if (!token) {
-      throw new UnauthorizedException('Invalid token');
+    const cookieHeader = client.handshake.headers.cookie;
+    if (!cookieHeader) {
+      throw new UnauthorizedException('No authentication cookie found');
     }
+
+    const match = cookieHeader.match(/access_token=([^;]+)/); 
+    if (!match) {
+      throw new UnauthorizedException('JWT not found in cookies');
+    }
+
+    const token = match[1];
 
     try {
       const payload = this.jwtService.verify(token, {

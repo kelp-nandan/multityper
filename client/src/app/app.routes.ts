@@ -6,5 +6,6 @@ export const routes: Routes = [
     {path:'',component:Login},
     {path:'login',component:Login},
     { path: 'homepage', component: Homepage },
+    {path: 'participants', loadComponent: () => import('./gamelobby/gamelobby').then(c => c.Gamelobby)},
     {path:'**', redirectTo:''}
 ];

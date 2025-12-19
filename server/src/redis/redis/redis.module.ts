@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { createClient } from 'redis';
+import { RedisService } from './redis.service';
 
 @Global()
 @Module({
@@ -26,7 +27,8 @@ import { createClient } from 'redis';
                 return client;
             },
         },
+        RedisService
     ],
-    exports: ['REDIS_CLIENT'],
+    exports: ['REDIS_CLIENT', RedisService],
 })
 export class RedisModule {}

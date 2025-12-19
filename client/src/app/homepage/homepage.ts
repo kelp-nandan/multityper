@@ -1,8 +1,13 @@
-import { Component, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Modal } from '../modal/modal';
 import { AuthService } from '../services/auth.service';
-import { response } from 'express';
+import { SocketService } from '../services/socket.service';
+import { Room } from '../interfaces/room.interface';
+import { RoomService } from '../services/room.service';
+import { Observable } from 'rxjs';
 
 interface User {
   id: number;
@@ -14,35 +19,80 @@ interface User {
 
 @Component({
   selector: 'app-homepage',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, Modal],
   templateUrl: './homepage.html',
   styleUrls: ['./homepage.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 
 export class Homepage implements OnInit {
-  user = signal<User | null>(null);
-  showDetails = signal(false);
-  isLoading = signal(false);
+
+  rooms$!: Observable<Room[]>;
 
   constructor(
     private authService: AuthService,
-    private router: Router
-  ) { }
+    private router: Router,
+    private socketService: SocketService,
+    private roomService: RoomService
+  ) {
+    this.rooms$ = this.roomService.rooms$;
+  }
+
+  user = signal<User | null>(null);
+  showDetails = signal(false);
+  isLoading = signal(false);
+  showJoinModal = signal(false);
+  showCreateModal = signal(false);
+  roomName = signal<string>('');
+
+  
 
   ngOnInit() {
-    //user authentication check
+    this.socketService.handleTesting();
     if (!this.authService.isAuthenticated()) {
       this.router.navigate(['/login']);
       return;
     }
 
-    //user load 
     const currentUser = this.authService.currentUser();
     if (currentUser) {
       this.user.set(currentUser);
     } else {
       this.fetchUserProfile();
     }
+  }
+
+  joinRoomModal() {
+    this.showJoinModal.set(true);
+  }
+
+  createRoomModal() {
+    this.showCreateModal.set(true);
+  }
+
+  handleCreateConfirm() {
+    console.log('Creating new room');
+    this.socketService.handleCreateRoom({ roomName: this.roomName() });
+    this.showCreateModal.set(false);
+    this.roomName.set('');
+    this.router.navigate(['/participants']);
+  }
+
+  handleJoinClose() {
+    this.showJoinModal.set(false);
+
+  }
+
+  handleCreateClose() {
+    this.showCreateModal.set(false);
+  }
+
+  handleJoinRoom(room: Room) {
+    console.log('Entering room with ID:', room.roomId);
+    this.roomService.selectRoom(room);
+    this.showJoinModal.set(false);
+    this.socketService.handleJoinRoom(room.roomId);
+    this.router.navigate(['/participants']);
   }
 
 
@@ -63,20 +113,9 @@ export class Homepage implements OnInit {
     });
   }
 
-
-  toggleDetails() {
-    this.showDetails.set(!this.showDetails());
-  }
-
   onLogout() {
     if (confirm('Are you sure you want to logout?'))
       this.authService.logout();
-  }
-
-  formatDate(date?: string): string {
-    if (!date) return 'N/A';
-    const d = new Date(date);
-    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
 }
