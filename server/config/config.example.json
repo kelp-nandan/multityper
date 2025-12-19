@@ -1,0 +1,22 @@
+{
+    "development": {
+        "username": "your_db_username",
+        "password": "your_db_password",
+        "database": "your_database_name",
+        "host": "localhost",
+        "port": 5432,
+        "dialect": "postgres",
+        "logging": true
+    },
+    "production": {
+        "use_env_variable": "DATABASE_URL",
+        "dialect": "postgres",
+        "dialectOptions": {
+            "ssl": {
+                "require": true,
+                "rejectUnauthorized": false
+            }
+        },
+        "logging": false
+    }
+}

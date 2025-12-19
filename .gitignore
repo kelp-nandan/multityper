@@ -13,6 +13,18 @@ pnpm-debug.log*
 .env.test.local
 .env.production.local
 
+# Database configuration files (contains credentials)
+server/config/config.json
+config/config.json
+**/config/config.json
+database.config.json
+db-config.json
+
+# JWT secrets and keys
+jwt.key
+*.key
+*.pem
+
 # Build outputs
 dist/
 build/
@@ -96,3 +108,42 @@ DATABASE_INTEGRATION_WORKFLOW.md
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
+
+# Additional security and config files
+config.json
+secrets.json
+.secrets
+
+# Any file containing credentials or sensitive data
+*credentials*
+*secrets*
+*password*
+*.private
+*.confidential
+
+# Local development files
+local.json
+dev.json
+development.json
+
+# Database connection files
+database.config.local.js
+db.config.local.js
+
+# Development caches
+.eslintcache
+.cache/
+
+# Cloud provider configs
+.aws/
+.gcp/
+
+# Terraform files
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+# Misc files
+*.tgz
+*.tar.gz
+.history/
