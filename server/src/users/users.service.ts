@@ -11,7 +11,7 @@ import * as bcrypt from "bcrypt";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { LoginUserDto } from "./dto/login-user.dto";
 import { UserRepository } from "../database/repositories";
-import { IUserProfile } from "../database/interfaces";
+import { IUserProfile } from "./interfaces";
 
 @Injectable()
 export class UsersService {
@@ -47,9 +47,7 @@ export class UsersService {
     return newUser;
   }
 
-  async login(
-    LoginUserDto: LoginUserDto,
-  ): Promise<{
+  async login(LoginUserDto: LoginUserDto): Promise<{
     user: IUserProfile;
     accessToken: string;
     refreshToken: string;

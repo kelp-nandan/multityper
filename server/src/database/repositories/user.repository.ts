@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-import { IUser, IUserProfile, ICreateUserData } from "../interfaces";
+import { IUser, IUserProfile, ICreateUserData } from "../../users/interfaces";
 import { User } from "../../models";
 
 export class UserRepository {
@@ -20,6 +20,8 @@ export class UserRepository {
         "password",
         "created_at",
         "updated_at",
+        "created_by",
+        "updated_by",
       ],
     });
   }
@@ -30,7 +32,15 @@ export class UserRepository {
   async findByEmail(email: string): Promise<IUserProfile | null> {
     const user = await User.findOne({
       where: { email },
-      attributes: ["id", "name", "email", "created_at", "updated_at"],
+      attributes: [
+        "id",
+        "name",
+        "email",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
+      ],
     });
     return user ? user.toProfile() : null;
   }
@@ -38,7 +48,15 @@ export class UserRepository {
   async findById(userId: number): Promise<IUserProfile | null> {
     const user = await User.findOne({
       where: { id: userId },
-      attributes: ["id", "name", "email", "created_at", "updated_at"],
+      attributes: [
+        "id",
+        "name",
+        "email",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
+      ],
     });
     return user ? user.toProfile() : null;
   }
@@ -49,12 +67,27 @@ export class UserRepository {
       email: userData.email,
       password: userData.password,
     });
+
+    // Update created_by and updated_by to user's own ID after creation
+    await user.update({
+      created_by: user.id,
+      updated_by: user.id,
+    });
+
     return user.toProfile();
   }
 
   async findAll(): Promise<IUserProfile[]> {
     const users = await User.findAll({
-      attributes: ["id", "name", "email", "created_at", "updated_at"],
+      attributes: [
+        "id",
+        "name",
+        "email",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
+      ],
       order: [["created_at", "DESC"]],
     });
     return users.map((user) => user.toProfile());
@@ -73,7 +106,15 @@ export class UserRepository {
     });
 
     const updatedUser = await User.findByPk(userId, {
-      attributes: ["id", "name", "email", "created_at", "updated_at"],
+      attributes: [
+        "id",
+        "name",
+        "email",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
+      ],
     });
 
     return updatedUser ? updatedUser.toProfile() : null;
@@ -93,7 +134,15 @@ export class UserRepository {
       where: {
         id: userIds,
       },
-      attributes: ["id", "name", "email", "created_at", "updated_at"],
+      attributes: [
+        "id",
+        "name",
+        "email",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
+      ],
       order: [["created_at", "DESC"]],
     });
     return users.map((user) => user.toProfile());

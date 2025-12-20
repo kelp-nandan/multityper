@@ -5,13 +5,13 @@ export interface IUser {
 }
 
 export interface IAuthResponse {
+  message: string;
   data: {
     user: IUser;
     accessToken: string;
     refreshToken: string;
   };
 }
-
 export interface ILoginRequest {
   email: string;
   password: string;
