@@ -5,8 +5,6 @@ export interface IUser {
   password: string;
   created_at: Date;
   updated_at: Date;
-  created_by?: number;
-  updated_by?: number;
 }
 
 export interface IUserProfile {

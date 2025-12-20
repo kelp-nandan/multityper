@@ -118,15 +118,7 @@ export class AuthService {
       // If we reach here, refresh was successful (200 status)
       return true;
     } catch (error: any) {
-      // Simplified refresh token error handling
-      const status = error.status;
-
-      if (status === 401 || status === 403) {
-        // Refresh token expired or invalid - user needs to re-authenticate
-      } else if (status >= 500 || status === 0) {
-        // Server or network error during refresh - will retry later
-      }
-
+      // Refresh failed - token expired or network error
       return false;
     }
   }

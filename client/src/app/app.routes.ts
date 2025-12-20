@@ -20,5 +20,6 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: { requiresAuth: true }, // Protected route
   },
+
   { path: '**', redirectTo: '/homepage' },
 ];

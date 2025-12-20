@@ -18,7 +18,7 @@ export class Homepage implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.user.set(this.authService.currentUser());

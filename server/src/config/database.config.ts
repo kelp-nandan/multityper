@@ -1,13 +1,13 @@
-import { Sequelize } from 'sequelize';
-import { ENV } from './env.config';
+import { Sequelize } from "sequelize";
+import { ENV } from "./env.config";
 
 // Provider for raw database queries
 export const databaseProviders = [
   {
-    provide: 'SEQUELIZE',
+    provide: "SEQUELIZE",
     useFactory: async () => {
       const sequelize = new Sequelize({
-        dialect: 'postgres',
+        dialect: "postgres",
         host: ENV.DATABASE_HOST,
         port: ENV.DATABASE_PORT,
         username: ENV.DATABASE_USER,

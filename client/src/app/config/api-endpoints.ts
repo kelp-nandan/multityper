@@ -6,19 +6,22 @@ export const API_ENDPOINTS = {
 
   // Authentication endpoints
   AUTH: {
-    BASE: `${environment.apiUrl}/users`,
-    LOGIN: `${environment.apiUrl}/users/login`,
-    REGISTER: `${environment.apiUrl}/users/register`,
-    LOGOUT: `${environment.apiUrl}/users/logout`,
+    LOGIN: `${environment.apiUrl}/auth/login`,
+    REGISTER: `${environment.apiUrl}/auth/register`,
+    LOGOUT: `${environment.apiUrl}/auth/logout`,
+  },
+
+  // Token management endpoints
+  TOKEN: {
+    REFRESH: `${environment.apiUrl}/token/refresh`,
+  },
+
+  // User management endpoints
+  USERS: {
     PROFILE: `${environment.apiUrl}/users/profile`,
-    REFRESH: `${environment.apiUrl}/users/refresh`,
-    LIST_USERS: `${environment.apiUrl}/users`,
+    LIST: `${environment.apiUrl}/users`,
   },
 
   // Paragraph endpoints
-  PARAGRAPHS: {
-    BASE: `${environment.apiUrl}/paragraphs`,
-    RANDOM: `${environment.apiUrl}/paragraphs/random`,
-    BY_NUMBER: `${environment.apiUrl}/paragraphs/number`,
-  },
+  PARAGRAPHS: `${environment.apiUrl}/paragraphs`,
 } as const;

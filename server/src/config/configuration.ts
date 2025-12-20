@@ -1,4 +1,4 @@
-import { ENV } from './env.config';
+import { ENV } from "./env.config";
 
 export default () => ({
   port: ENV.PORT,

@@ -109,23 +109,7 @@ export class Login {
     return '';
   }
 
-  private getErrorMessage(error: any): string {
-    switch (error.status) {
-      case 401:
-        return 'Invalid email or password';
-      case 409:
-        return 'Email already exists';
-      case 422:
-        return 'Please check your input';
-      case 429:
-        return 'Too many attempts - please wait';
-      case 0:
-        return 'Network error - check connection';
-      default:
-        if (error.status >= 500) {
-          return 'Server error - try again later';
-        }
-        return error.error?.message || 'Please try again';
-    }
+  private getErrorMessage(error: { status?: number; error?: { message?: string } }): string {
+    return error.error?.message || 'Please try again';
   }
 }
