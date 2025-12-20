@@ -4,6 +4,11 @@ import { Room } from '../interfaces/room.interface';
 import { RoomService } from './room.service';
 import {SERVER_URL} from '../constants/index';
 
+interface HostDetails {
+  roomId: string,
+  userId: number,
+}
+
 @Injectable({ providedIn: 'root' })
 export class SocketService {
   private socket: Socket;
@@ -28,6 +33,7 @@ export class SocketService {
           roomId: item.key,
           roomName: item.data.roomName,
           players: item.data.players,
+          isGameStarted: item.data.isGameStarted
         }));
 
         this.roomService.setRooms(rooms);
@@ -40,6 +46,7 @@ export class SocketService {
           roomId: item.key,
           roomName: item.data.roomName,
           players: item.data.players,
+          isGameStarted: item.data.isGameStarted
         };
 
         this.roomService.addRoom(room);
@@ -55,6 +62,7 @@ export class SocketService {
             roomId: item.key,
             roomName: item.data.roomName,
             players: item.data.players,
+            isGameStarted: item.data.isGameStarted
           };
         } else {
           updatedRoom = item;
@@ -70,6 +78,45 @@ export class SocketService {
         this.roomService.clearSelectRoom();
       })
     });
+
+    this.socket.on('game-started', (item: any) => {
+      this.ngZone.run(() => {
+        
+        let updatedRoom: Room;
+        if (item.key && item.data) {
+          updatedRoom = {
+            roomId: item.key,
+            roomName: item.data.roomName,
+            players: item.data.players,
+            isGameStarted: item.data.isGameStarted
+          };
+        } else {
+          updatedRoom = item;
+        }
+        
+        this.roomService.updateRoom(updatedRoom);
+      });
+    })
+
+    this.socket.on('lock-room', (item: any) => {
+      console.log("reached lock room with payload", item);
+      this.ngZone.run(() => {
+        
+        let updatedRoom: Room;
+        if (item.key && item.data) {
+          updatedRoom = {
+            roomId: item.key,
+            roomName: item.data.roomName,
+            players: item.data.players,
+            isGameStarted: item.data.isGameStarted
+          };
+        } else {
+          updatedRoom = item;
+        }
+        console.log("updated data: ", updatedRoom); 
+        this.roomService.updateRoom(updatedRoom);
+      });
+    })
 
   }
 
@@ -88,6 +135,10 @@ export class SocketService {
 
   handleGetAllRooms(){
     this.socket.emit('get-all-rooms');
+  }
+
+  handleCountdown(roomId: string) {
+    this.socket.emit('countdown', roomId);
   }
 
 }

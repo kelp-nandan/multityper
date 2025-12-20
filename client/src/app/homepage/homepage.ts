@@ -53,7 +53,6 @@ export class Homepage implements OnInit {
       return;
     }
 
-
     const currentUser = this.authService.currentUser();
     if (currentUser) {
       this.user.set(currentUser);
@@ -61,6 +60,11 @@ export class Homepage implements OnInit {
       this.fetchUserProfile();
     }
   }
+
+  trackByRoomId(index: number, room: Room) {
+    return room.roomId;
+  }
+
 
   joinRoomModal() {
     this.showJoinModal.set(true);

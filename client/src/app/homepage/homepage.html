@@ -38,32 +38,31 @@
   [isOpen]="showJoinModal()"
   [showFooter]="false"
   title="Join Room"
-  >
+>
   <div class="modal-content rooms-list">
     <div class="rooms-intro">
       Select a room to join — tap Join on the right.
     </div>
 
-    @for (room of rooms$ | async; track room.roomId) {
-      <div class="room-card">
-        <div class="room-info">
-          <p class="room-name">{{ room.roomName }}</p>
-          <p class="room-id">
-            ID: <span>{{ room.roomId }}</span>
-          </p>
-        </div>
-
-        <button
-          class="room-join-btn"
-          (click)="handleJoinRoom(room)"
-        >
-          Join
-        </button>
+    <div *ngFor="let room of rooms$ | async; trackBy: trackByRoomId" class="room-card">
+      <div class="room-info">
+        <p class="room-name">{{ room.roomName }}</p>
+        <p class="room-id">
+          ID: <span>{{ room.roomId }}</span>
+        </p>
       </div>
-    }
-  </div>
 
+      <button
+        class="room-join-btn"
+        (click)="handleJoinRoom(room)"
+        [disabled]="room.isGameStarted"
+      >
+        Join
+      </button>
+    </div>
+  </div>
 </app-modal>
+
 
 <app-modal
   [isOpen]="showCreateModal()"

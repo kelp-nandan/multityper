@@ -39,7 +39,7 @@ export class RoomService{
 
   updateRoom(updatedRoom: Room) {
     const currentRooms = this.roomsSubject.value;
-
+    
     const index = currentRooms.findIndex(r => r.roomId === updatedRoom.roomId);
     if (index === -1) return;
 

@@ -20,5 +20,6 @@ export interface Rooms {
       userName: string,
       isCreated: boolean
     }
-  ]
+  ],
+  isGameStarted: boolean;
 }

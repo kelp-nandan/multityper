@@ -46,8 +46,9 @@ export class Gamelobby implements OnInit {
     });
   }
 
-  startRace() {
+  startRace(roomId: string) {
     console.log("Race Started...Countdown part");
+    this.socketService.handleCountdown(roomId);
   }
 
   destroyRace(roomId: string) {

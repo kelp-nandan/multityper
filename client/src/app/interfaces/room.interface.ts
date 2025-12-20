@@ -7,5 +7,6 @@ export interface Room{
       userName: string,
       isCreated: boolean
     }
-  ]
+  ],
+  isGameStarted: boolean
 }

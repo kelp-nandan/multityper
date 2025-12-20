@@ -14,7 +14,7 @@
 
     <div class="players-footer">
       <ng-container *ngIf="isCreator(); else waiting">
-        <button class="button-primary" (click)="startRace()">Start Game</button>
+        <button class="button-primary" (click)="startRace(room.roomId)">Start Game</button>
         <button class="button-secondary" (click)="destroyRace(room.roomId)">Destroy Game</button>
       </ng-container>
 
