@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { Room } from '../interfaces/room.interface';
+import { IRoom } from '../interfaces/room.interface';
 import { Modal } from '../modal/modal';
 import { AuthService } from '../services/auth.service';
 import { RoomService } from '../services/room.service';
@@ -22,12 +22,11 @@ interface User {
   imports: [CommonModule, FormsModule, Modal],
   templateUrl: './homepage.html',
   styleUrls: ['./homepage.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 
 export class Homepage implements OnInit {
 
-  rooms$!: Observable<Room[]>;
+  rooms$!: Observable<IRoom[]>;
 
   constructor(
     private authService: AuthService,
@@ -61,7 +60,7 @@ export class Homepage implements OnInit {
     }
   }
 
-  trackByRoomId(index: number, room: Room) {
+  trackByRoomId(index: number, room: IRoom) {
     return room.roomId;
   }
 
@@ -89,7 +88,7 @@ export class Homepage implements OnInit {
     this.roomName.set('');
   }
 
-  handleJoinRoom(room: Room) {
+  handleJoinRoom(room: IRoom) {
     this.roomService.selectRoom(room);
     this.showJoinModal.set(false);
     this.socketService.handleJoinRoom(room.roomId);

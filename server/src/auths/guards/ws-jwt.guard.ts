@@ -2,7 +2,6 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { JwtService } from '@nestjs/jwt';
 import { Socket } from 'socket.io';
 
-
 @Injectable()
 export class WsJwtGuard implements CanActivate {
   constructor(private readonly jwtService: JwtService) {}
@@ -15,7 +14,7 @@ export class WsJwtGuard implements CanActivate {
       throw new UnauthorizedException('No authentication cookie found');
     }
 
-    const match = cookieHeader.match(/access_token=([^;]+)/); 
+    const match = cookieHeader.match(/access_token=([^;]+)/);
     if (!match) {
       throw new UnauthorizedException('JWT not found in cookies');
     }

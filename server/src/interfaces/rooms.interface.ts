@@ -1,25 +1,25 @@
-export interface GetRooms { 
-  key: string, 
+export interface IGetRooms {
+  key: string;
   data: {
-    roomName: string,
+    roomName: string;
     players: [
       {
-        userId: number,
-        userName: string,
-        isCreated: boolean
-      }
-    ]
-  }
+        userId: number;
+        userName: string;
+        isCreated: boolean;
+      },
+    ];
+  };
 }
 
-export interface Rooms {
-  roomName: string,
+export interface IRooms {
+  roomName: string;
   players: [
     {
-      userId: number,
-      userName: string,
-      isCreated: boolean
-    }
-  ],
+      userId: number;
+      userName: string;
+      isCreated: boolean;
+    },
+  ];
   isGameStarted: boolean;
 }

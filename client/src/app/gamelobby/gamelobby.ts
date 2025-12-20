@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { Room } from '../interfaces/room.interface';
+import { IRoom } from '../interfaces/room.interface';
 import { AuthService } from '../services/auth.service';
 import { RoomService } from '../services/room.service';
 import { SocketService } from '../services/socket.service';
@@ -15,7 +15,7 @@ import { SocketService } from '../services/socket.service';
   styleUrls: ['./gamelobby.scss'],
 })
 export class Gamelobby implements OnInit {
-  room$!: Observable<Room | null>;
+  room$!: Observable<IRoom | null>;
   isCreator = signal<boolean>(false);
 
   constructor(

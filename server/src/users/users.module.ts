@@ -8,21 +8,21 @@ import { User } from './entities/user.entity';
 import { RefreshToken } from './entities/refresh-token.entity';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([User, RefreshToken]),
-        JwtModule.registerAsync({
-            imports: [ConfigModule],
-            useFactory: (configService: ConfigService): JwtModuleOptions => {
-                return {
-                    secret: configService.get<string>('jwt.secret'),
-                    signOptions: { expiresIn: configService.get<string>('jwt.expiresIn') as any },
-                };
-            },
-            inject: [ConfigService],
-        }),
-    ],
-    controllers: [UsersController],
-    providers: [UsersService],
-    exports: [UsersService],
+  imports: [
+    TypeOrmModule.forFeature([User, RefreshToken]),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService): JwtModuleOptions => {
+        return {
+          secret: configService.get<string>('jwt.secret'),
+          signOptions: { expiresIn: configService.get<string>('jwt.expiresIn') as any },
+        };
+      },
+      inject: [ConfigService],
+    }),
+  ],
+  controllers: [UsersController],
+  providers: [UsersService],
+  exports: [UsersService],
 })
-export class UsersModule { }
+export class UsersModule {}

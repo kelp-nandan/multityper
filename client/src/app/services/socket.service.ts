@@ -1,6 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
-import { Room } from '../interfaces/room.interface';
+import { IRoom } from '../interfaces/room.interface';
 import { RoomService } from './room.service';
 import {SERVER_URL} from '../constants/index';
 
@@ -29,11 +29,11 @@ export class SocketService {
 
     this.socket.on('set-all-rooms', (data: any[]) => {
       this.ngZone.run(() => {
-        const rooms: Room[] = data.map((item) => ({
+        const rooms: IRoom[] = data.map((item) => ({
           roomId: item.key,
           roomName: item.data.roomName,
           players: item.data.players,
-          isGameStarted: item.data.isGameStarted
+          gameStarted: item.data.isGameStarted
         }));
 
         this.roomService.setRooms(rooms);
@@ -42,11 +42,11 @@ export class SocketService {
 
     this.socket.on('created-room', (item: any) => {
       this.ngZone.run(() => {
-        const room: Room = {
+        const room: IRoom = {
           roomId: item.key,
           roomName: item.data.roomName,
           players: item.data.players,
-          isGameStarted: item.data.isGameStarted
+          gameStarted: item.data.isGameStarted
         };
 
         this.roomService.addRoom(room);
@@ -56,13 +56,13 @@ export class SocketService {
     this.socket.on('room-updated', (item: any) => {
       this.ngZone.run(() => {
         
-        let updatedRoom: Room;
+        let updatedRoom: IRoom;
         if (item.key && item.data) {
           updatedRoom = {
             roomId: item.key,
             roomName: item.data.roomName,
             players: item.data.players,
-            isGameStarted: item.data.isGameStarted
+            gameStarted: item.data.isGameStarted
           };
         } else {
           updatedRoom = item;
@@ -82,13 +82,13 @@ export class SocketService {
     this.socket.on('game-started', (item: any) => {
       this.ngZone.run(() => {
         
-        let updatedRoom: Room;
+        let updatedRoom: IRoom;
         if (item.key && item.data) {
           updatedRoom = {
             roomId: item.key,
             roomName: item.data.roomName,
             players: item.data.players,
-            isGameStarted: item.data.isGameStarted
+            gameStarted: item.data.isGameStarted
           };
         } else {
           updatedRoom = item;
@@ -102,13 +102,13 @@ export class SocketService {
       console.log("reached lock room with payload", item);
       this.ngZone.run(() => {
         
-        let updatedRoom: Room;
+        let updatedRoom: IRoom;
         if (item.key && item.data) {
           updatedRoom = {
             roomId: item.key,
             roomName: item.data.roomName,
             players: item.data.players,
-            isGameStarted: item.data.isGameStarted
+            gameStarted: item.data.isGameStarted
           };
         } else {
           updatedRoom = item;

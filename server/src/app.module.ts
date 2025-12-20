@@ -9,7 +9,6 @@ import { RedisModule } from './redis/redis.module';
 import configuration from './config/configuration';
 import { ChatModule } from './rooms/rooms.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -36,4 +35,4 @@ import { ChatModule } from './rooms/rooms.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

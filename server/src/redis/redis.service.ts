@@ -1,25 +1,25 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { createClient, RedisClientType } from 'redis';
-import { GetRooms, Rooms } from 'src/interfaces/rooms.interface';
+import { IGetRooms, IRooms } from 'src/interfaces/rooms.interface';
 @Injectable()
 export class RedisService implements OnModuleInit {
-  private client : RedisClientType;
+  private client: RedisClientType;
 
   async onModuleInit() {
     this.client = createClient({
-      url: `redis://:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`
+      url: `redis://:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`,
     });
 
     await this.client.connect();
 
-    this.client.on('error', (err) => console.error('Redis Client Error', err));
+    this.client.on('error', err => console.error('Redis Client Error', err));
   }
 
   async onModuleDestroy() {
     await this.client.quit();
   }
 
-  async setRoom(id: string, data: Rooms) {
+  async setRoom(id: string, data: IRooms) {
     await this.client.set(id, JSON.stringify(data));
   }
 
@@ -33,17 +33,16 @@ export class RedisService implements OnModuleInit {
   }
 
   async getAllRooms() {
-
-    const rooms: GetRooms[] = [];
-    let cursor = '0'; 
+    const rooms: IGetRooms[] = [];
+    let cursor = '0';
 
     do {
       const reply = await this.client.scan(cursor, {
-        MATCH: '*', 
+        MATCH: '*',
         COUNT: 100,
       });
 
-      cursor = reply.cursor; 
+      cursor = reply.cursor;
       const keys = reply.keys;
 
       if (keys.length > 0) {
@@ -58,9 +57,7 @@ export class RedisService implements OnModuleInit {
           }
         });
       }
-    } while (cursor !== '0'); 
+    } while (cursor !== '0');
     return rooms;
   }
-
-
 }

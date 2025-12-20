@@ -1,4 +1,4 @@
-export interface Room{
+export interface IRoom{
   roomName: string,
   roomId: string,
   players: [
@@ -8,5 +8,5 @@ export interface Room{
       isCreated: boolean
     }
   ],
-  isGameStarted: boolean
+  gameStarted: boolean
 }
