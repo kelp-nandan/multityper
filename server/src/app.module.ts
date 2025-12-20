@@ -1,39 +1,22 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthsModule } from './auths/auths.module';
-import { UsersModule } from './users/users.module';
-import { RedisModule } from './redis/redis/redis.module';
-import configuration from './config/configuration'; // ✅ ADD THIS
-import { ChatModule } from './chat/chat.module';
-
+import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
+import { AppController } from "./app.controller";
+import { AuthModule } from "./auth/auth.module";
+import { UsersModule } from "./users/users.module";
+import configuration from "./config/configuration";
+import { databaseProviders } from "./config/database.config";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: ".env",
       load: [configuration],
     }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        type: configService.get<string>('database.type') as 'postgres',
-        url: configService.get<string>('database.url'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: configService.get<string>('nodeEnv') === 'development',
-        logging: configService.get<string>('nodeEnv') === 'development',
-      }),
-      inject: [ConfigService],
-    }),
     UsersModule,
-    AuthsModule,
-    RedisModule,
-    ChatModule,
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [...databaseProviders],
 })
-export class AppModule { }
+export class AppModule {}

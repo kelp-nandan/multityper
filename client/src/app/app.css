@@ -1,13 +1,12 @@
-
-.header{
-    background-color: rgb(120, 33, 201);
-    padding: 10px;
+.header {
+  background-color: rgb(120, 33, 201);
+  padding: 10px;
 }
-h1{
-    align-items: center;
-    text-align: center;
-    display: flex;
-    justify-content: center;
+h1 {
+  align-items: center;
+  text-align: center;
+  display: flex;
+  justify-content: center;
 
-    color: white;
+  color: white;
 }

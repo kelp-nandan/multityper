@@ -1,19 +1,25 @@
+import { ENV } from "./env.config";
+
 export default () => ({
-    port: parseInt(process.env.PORT || '3000', 10),
-    nodeEnv: process.env.NODE_ENV || 'development',
+  port: ENV.PORT,
+  nodeEnv: ENV.NODE_ENV,
 
-    database: {
-        type: process.env.DATABASE_TYPE || 'postgres',
-        url: process.env.DATABASE_URL || 'postgresql://admin:admin123@localhost:5432/testdb',
-    },
+  database: {
+    type: ENV.DATABASE_TYPE,
+    host: ENV.DATABASE_HOST,
+    port: ENV.DATABASE_PORT,
+    username: ENV.DATABASE_USER,
+    password: ENV.DATABASE_PASSWORD,
+    database: ENV.DB_NAME,
+  },
 
-    jwt: {
-        secret: process.env.JWT_SECRET || 'default-secret-key',
-        expiresIn: process.env.JWT_EXPIRES_IN || '15m',
-        refreshExpiresInDays: parseInt(process.env.JWT_REFRESH_EXPIRES_DAYS || '7', 10),
-    },
+  jwt: {
+    secret: ENV.JWT_SECRET,
+    expiresIn: ENV.JWT_EXPIRES_IN,
+    refreshExpiresInDays: ENV.JWT_REFRESH_EXPIRES_DAYS,
+  },
 
-    cors: {
-        origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
-    },
+  cors: {
+    origin: ENV.CORS_ORIGIN,
+  },
 });

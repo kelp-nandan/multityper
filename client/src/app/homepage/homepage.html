@@ -1,128 +1,18 @@
 <div class="homepage-container">
-    <div class="homepage-card">
-        <!-- Header with greeting -->
-        <div class="header">
-            <h1 class="greeting">Hello, {{ user()?.name || 'User' }}! 👋</h1>
-            <p class="welcome-text">Welcome to your dashboard</p>
-        </div>
+  <header class="homepage-header">
+    <h1>Multi-Typer Game</h1>
+    <p>Welcome to the ultimate typing challenge!</p>
+  </header>
 
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-            <button class="btn btn-details" (click)="toggleDetails()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-                {{ showDetails() ? 'Hide Details' : 'View Details' }}
-            </button>
+  <main class="homepage-content">
+    <section class="game-intro">
+      <h2>Ready to Test Your Typing Skills?</h2>
+      <p>Challenge yourself with various paragraphs and improve your typing speed and accuracy.</p>
 
-            <button class="btn btn-logout" (click)="onLogout()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                    <polyline points="16 17 21 12 16 7"></polyline>
-                    <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
-                Logout
-            </button>
-        </div>
-
-        <!-- User Details Section (Conditional) -->
-        @if (showDetails()) {
-        <div class="details-card">
-            <h2 class="details-title">Your Profile Details</h2>
-
-            @if (isLoading()) {
-            <div class="loading">
-                <div class="spinner"></div>
-                <p>Loading your details...</p>
-            </div>
-            }
-
-            @if (!isLoading() && user()) {
-            <div class="details-content">
-                <div class="detail-item">
-                    <span class="detail-label">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                        Full Name
-                    </span>
-                    <span class="detail-value">{{ user()?.name }}</span>
-                </div>
-
-                <div class="detail-item">
-                    <span class="detail-label">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
-                            </path>
-                            <polyline points="22,6 12,13 2,6"></polyline>
-                        </svg>
-                        Email Address
-                    </span>
-                    <span class="detail-value">{{ user()?.email }}</span>
-                </div>
-
-                <div class="detail-item">
-                    <span class="detail-label">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path
-                                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
-                            </path>
-                        </svg>
-                        Member Since
-                    </span>
-                    <span class="detail-value">{{ formatDate(user()?.createdAt) }}</span>
-                </div>
-
-                <div class="detail-item" *ngIf="false">
-                    <span class="detail-label">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                            <line x1="3" y1="10" x2="21" y2="10"></line>
-                        </svg>
-                        User ID
-                    </span>
-                    <span class="detail-value">#{{ user()?.id }}</span>
-                </div>
-            </div>
-            }
-        </div>
-        }
-
-        <!-- Quick Stats (Optional) -->
-        <div class="stats-section">
-            <div class="stat-card">
-                <div class="stat-icon">🎯</div>
-                <div class="stat-content">
-                    <h3>Active</h3>
-                    <p>Account Status</p>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon">🔒</div>
-                <div class="stat-content">
-                    <h3>Secure</h3>
-                    <p>JWT Protected</p>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon">✅</div>
-                <div class="stat-content">
-                    <h3>Verified</h3>
-                    <p>User Account</p>
-                </div>
-            </div>
-        </div>
-    </div>
+      <div class="action-buttons">
+        <button class="start-game-btn" (click)="startGame()">Start Game</button>
+        <button class="logout-btn" (click)="onLogout()">Logout</button>
+      </div>
+    </section>
+  </main>
 </div>
