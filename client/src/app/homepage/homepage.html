@@ -1,18 +1,84 @@
-<div class="homepage-container">
-  <header class="homepage-header">
-    <h1>Multi-Typer Game</h1>
-    <p>Welcome to the ultimate typing challenge!</p>
-  </header>
-
-  <main class="homepage-content">
-    <section class="game-intro">
-      <h2>Ready to Test Your Typing Skills?</h2>
-      <p>Challenge yourself with various paragraphs and improve your typing speed and accuracy.</p>
-
-      <div class="action-buttons">
-        <button class="start-game-btn" (click)="startGame()">Start Game</button>
-        <button class="logout-btn" (click)="onLogout()">Logout</button>
+<div class="dashboard-container">
+  <div class="welcome-dashboard-container">
+    <div class="header-row">
+      <div class="profile">
+        <div class="avatar">{{ (user()?.name || 'U').charAt(0) }}</div>
+        <div class="user-info">
+          <div class="user-name">{{ user()?.name || 'User' }}</div>
+          <div class="user-email">{{ user()?.email || '' }}</div>
+        </div>
       </div>
-    </section>
-  </main>
+      <div class="controls">
+        <button class="create-button" (click)="createRoomModal()">Create Room</button>
+        <button class="join-button" (click)="joinRoomModal()">Join Room</button>
+      </div>
+    </div>
+
+    <h1 class="welcome-note"><span class="wel-text">Welcome,</span> {{ user()?.name || 'User' }}</h1>
+    <p class="subtitle">Type fast. Think faster. Win the race.</p>
+
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-value">0</div>
+        <div class="stat-label">Best WPM</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">0</div>
+        <div class="stat-label">Games Played</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">0</div>
+        <div class="stat-label">Wins</div>
+      </div>
+    </div>
+  </div>
 </div>
+
+<app-modal
+  [isOpen]="showJoinModal()"
+  [showFooter]="false"
+  title="Join Room"
+>
+  <div class="modal-content rooms-list">
+    <div class="rooms-intro">
+      Select a room to join — tap Join on the right.
+    </div>
+
+    <div *ngFor="let room of rooms$ | async; trackBy: trackByRoomId" class="room-card">
+      <div class="room-info">
+        <p class="room-name">{{ room.roomName }}</p>
+        <p class="room-id">
+          ID: <span>{{ room.roomId }}</span>
+        </p>
+      </div>
+
+      <button
+        class="room-join-btn"
+        (click)="handleJoinRoom(room)"
+        [disabled]="room.gameStarted"
+      >
+        Join
+      </button>
+    </div>
+  </div>
+</app-modal>
+
+
+<app-modal
+  [isOpen]="showCreateModal()"
+  title="Create New Room"
+  (onClose)="handleCreateClose()"
+  (onConfirmed)="handleCreateConfirm()">
+  <div class="modal-content create-room">
+    <label for="roomName">Room name</label>
+    <input
+      type="text"
+      id="roomName"
+      placeholder="Enter your room name"
+      [ngModel]="roomName()"
+      (ngModelChange)="roomName.set($event)"
+      class="modal-input"
+    />
+    <p class="hint">Give your room a fun, memorable name so friends can find it.</p>
+  </div>
+</app-modal>

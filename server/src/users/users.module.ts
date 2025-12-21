@@ -3,10 +3,11 @@ import { JwtModule, JwtModuleOptions } from "@nestjs/jwt";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { UsersService } from "./users.service";
 import { UsersController } from "./users.controller";
-import { databaseProviders } from "../config/database.config";
+import { DatabaseModule } from "src/database/database.module";
 
 @Module({
   imports: [
+    DatabaseModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService): JwtModuleOptions => {
@@ -21,7 +22,7 @@ import { databaseProviders } from "../config/database.config";
     }),
   ],
   controllers: [UsersController],
-  providers: [UsersService, ...databaseProviders],
+  providers: [UsersService],
   exports: [UsersService],
 })
 export class UsersModule {}

@@ -27,17 +27,17 @@ export default tseslint.config(
   {
     rules: {
       // TypeScript specific rules - make them more lenient
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
-      '@typescript-eslint/no-floating-promises': 'off',
-      '@typescript-eslint/no-unsafe-argument': 'off',
-      '@typescript-eslint/no-unsafe-assignment': 'off',
-      '@typescript-eslint/no-unsafe-call': 'off',
-      '@typescript-eslint/no-unsafe-member-access': 'off',
-      '@typescript-eslint/no-unsafe-return': 'off',
-      '@typescript-eslint/require-await': 'off',
-      '@typescript-eslint/no-misused-promises': 'off',
-      '@typescript-eslint/unbound-method': 'off',
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-unused-vars': 'error',
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-unsafe-argument': 'error',
+      '@typescript-eslint/no-unsafe-assignment': 'error',
+      '@typescript-eslint/no-unsafe-call': 'error',
+      '@typescript-eslint/no-unsafe-member-access': 'error',
+      '@typescript-eslint/no-unsafe-return': 'error',
+      '@typescript-eslint/require-await': 'error',
+      '@typescript-eslint/no-misused-promises': 'error',
+      '@typescript-eslint/unbound-method': 'error',
 
       // General ESLint rules - make them less strict
       'no-console': 'off',

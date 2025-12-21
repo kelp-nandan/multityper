@@ -3,9 +3,10 @@ import { ConfigModule } from "@nestjs/config";
 import { AppController } from "./app.controller";
 import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./users/users.module";
+import { RedisModule } from "./redis/redis.module";
 import configuration from "./config/configuration";
-import { databaseProviders } from "./config/database.config";
-
+import { ChatModule } from "./rooms/rooms.module";
+import { DatabaseModule } from "./database/database.module";
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -13,10 +14,13 @@ import { databaseProviders } from "./config/database.config";
       envFilePath: ".env",
       load: [configuration],
     }),
+    DatabaseModule,
     UsersModule,
     AuthModule,
+    RedisModule,
+    ChatModule,
   ],
   controllers: [AppController],
-  providers: [...databaseProviders],
+  providers: [],
 })
 export class AppModule {}

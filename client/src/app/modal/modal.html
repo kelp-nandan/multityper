@@ -1,0 +1,23 @@
+<div class="modal-overlay" [class.show]="isOpen">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>{{ title }}</h2>
+      <button class="modal-close-btn" (click)="closeModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <ng-content></ng-content>
+    </div>
+
+    @if (showFooter) {
+      <div class="modal-footer">
+        <button class="modal-btn modal-btn-secondary" (click)="closeModal()">
+          Close
+        </button>
+        <button class="modal-btn modal-primary" (click)="onConfirm()">
+          Confirm
+        </button>
+      </div>
+    }
+  </div>
+</div>

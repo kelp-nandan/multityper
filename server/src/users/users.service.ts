@@ -76,7 +76,17 @@ export class UsersService {
     const accessToken = this.jwtService.sign(payload, { expiresIn: "15m" });
     const refreshToken = this.generateRefreshToken(user.id);
 
-    const { password: _, ...userProfile } = user;
+    // Return clean user object without password
+    const userProfile: IUserProfile = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+      created_by: user.created_by,
+      updated_by: user.updated_by,
+    };
+
     return {
       user: userProfile,
       accessToken,
