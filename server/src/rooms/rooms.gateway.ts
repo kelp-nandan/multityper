@@ -8,7 +8,7 @@ import {
   WsException,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
-import { WsJwtGuard } from "src/auths/guards/ws-jwt.guard";
+import { WsJwtGuard } from "src/auth/guards/ws-jwt.guard";
 import { wsConfig } from "src/config/wsConfig";
 import { RedisService } from "src/redis/redis.service";
 import { v4 as uuid4 } from "uuid";

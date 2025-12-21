@@ -46,7 +46,9 @@ export class AuthService {
       ])) as IAuthResponse;
 
       if (response?.data?.user) {
-        this.currentUser.set(response.data.user);
+        // Handle Sequelize objects by extracting dataValues if present
+        const cleanUser = (response.data.user as any)?.dataValues || response.data.user;
+        this.currentUser.set(cleanUser);
         return true;
       }
     } catch (error) {
@@ -78,7 +80,9 @@ export class AuthService {
   }
 
   setUserData(user: IUser) {
-    this.currentUser.set(user);
+    // Handle Sequelize objects by extracting dataValues if present
+    const cleanUser = (user as any)?.dataValues || user;
+    this.currentUser.set(cleanUser);
   }
 
   getUserProfile(): Observable<IAuthResponse> {

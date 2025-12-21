@@ -3,6 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { IRoom } from '../interfaces/room.interface';
 import { RoomService } from './room.service';
 import {SERVER_URL} from '../constants/index';
+import { Router } from '@angular/router';
 
 interface HostDetails {
   roomId: string,
@@ -13,7 +14,7 @@ interface HostDetails {
 export class SocketService {
   private socket: Socket;
 
-  constructor(private roomService: RoomService, private ngZone: NgZone) {
+  constructor(private roomService: RoomService, private ngZone: NgZone, private router: Router) {
     this.socket = io(SERVER_URL, {
       withCredentials: true
     });
@@ -48,7 +49,7 @@ export class SocketService {
           players: item.data.players,
           gameStarted: item.data.isGameStarted
         };
-
+        this.router.navigate(['/participants']);
         this.roomService.addRoom(room);
       });
     });

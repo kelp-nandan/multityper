@@ -1,16 +1,5 @@
-$primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-$primary-light: #667eea;
-$primary-dark: #764ba2;
-$white: #fff;
-$text-dark: #2b2b2b;
-$text-light: #666;
-$text-muted: #444;
-$border-light: #e0e0e0;
-$bg-light: #f9f9f9;
-$bg-lighter: #f0f0f0;
-
-$transition-smooth: all 0.2s ease;
-$transition-transform: transform 0.2s ease;
+@import '../styles/colors.scss';
+@import '../styles/typography.scss';
 
 .dashboard-container {
   background: $primary-gradient;
@@ -33,18 +22,18 @@ $transition-transform: transform 0.2s ease;
 .welcome-dashboard-container {
   .welcome-note {
     text-align: center;
-    color: $primary-light;
+    color: $primary-gradient-start;
     padding-bottom: 10px;
     font-size: 60px;
     margin-top: 14px;
 
     .wel-text {
-      color: $primary-dark;
+      color: $primary-gradient-end;
     }
   }
 
   .subtitle {
-    color: $text-muted;
+    color: $text-mute;
     margin-top: 8px;
     font-size: 15px;
   }
@@ -95,7 +84,7 @@ $transition-transform: transform 0.2s ease;
 
     .create-button {
       background: $white;
-      color: $primary-light;
+      color: $primary-gradient-start;
       border: 2px solid rgba(102, 126, 234, 0.15);
       padding: 10px 14px;
       border-radius: 8px;
@@ -114,7 +103,7 @@ $transition-transform: transform 0.2s ease;
       border: none;
       border-radius: 10px;
       color: $white;
-      background-color: $primary-dark;
+      background-color: $primary-gradient-start;
       cursor: pointer;
       transition: $transition-transform;
 
@@ -141,7 +130,7 @@ $transition-transform: transform 0.2s ease;
     .stat-value {
       font-size: 22px;
       font-weight: 700;
-      color: $primary-light;
+      color: $primary-gradient-start;
     }
 
     .stat-label {
@@ -175,7 +164,7 @@ $transition-transform: transform 0.2s ease;
 
       &:hover {
         background-color: $bg-lighter;
-        border-color: $primary-light;
+        border-color: $primary-gradient-start;
         box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
       }
 
@@ -189,7 +178,7 @@ $transition-transform: transform 0.2s ease;
 
           &.room-id {
             font-weight: 500;
-            color: $primary-light;
+            color: $primary-gradient-start;
           }
 
           &.room-name {
@@ -200,7 +189,7 @@ $transition-transform: transform 0.2s ease;
 
       .room-join-btn {
         padding: 8px 16px;
-        background-color: $primary-light;
+        background-color: $primary-gradient-start;
         color: $white;
         border: none;
         border-radius: 4px;
@@ -212,7 +201,7 @@ $transition-transform: transform 0.2s ease;
         margin-left: 10px;
 
         &:hover {
-          background-color: $primary-dark;
+          background-color: $primary-gradient-end;
           transform: translateY(-2px);
           box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
         }

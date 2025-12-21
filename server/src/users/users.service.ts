@@ -1,133 +1,169 @@
-import { Injectable, ConflictException, UnauthorizedException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import {
+  Injectable,
+  ConflictException,
+  UnauthorizedException,
+  Inject,
+} from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
+import { Sequelize } from "sequelize";
 import * as bcrypt from "bcrypt";
-import * as crypto from "crypto";
-import { User } from "./entities/user.entity";
-import { RefreshToken } from "./entities/refresh-token.entity";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { LoginUserDto } from "./dto/login-user.dto";
+import { UserRepository } from "../database/repositories";
+import { IUserProfile } from "./interfaces";
 
 @Injectable()
 export class UsersService {
+  private userRepository: UserRepository;
+
   constructor(
-    @InjectRepository(User)
-    private UserRepository: Repository<User>,
-    @InjectRepository(RefreshToken)
-    private refreshTokenRepository: Repository<RefreshToken>,
+    @Inject("SEQUELIZE")
+    private sequelize: Sequelize,
     private jwtService: JwtService,
     private configService: ConfigService,
-  ) {}
+  ) {
+    this.userRepository = new UserRepository(sequelize);
+  }
 
-  async register(createUserDto: CreateUserDto): Promise<Omit<User, "password">> {
+  async register(createUserDto: CreateUserDto): Promise<IUserProfile> {
     const { name, email, password } = createUserDto;
 
-    const existingUser = await this.UserRepository.findOne({ where: { email } });
+    const existingUser = await this.userRepository.findByEmail(email);
     if (existingUser) {
-      throw new ConflictException("Email already in use");
+      throw new Error("email already exists");
     }
 
-    // Client sends pre-hashed password (with fixed salt for consistency)
-    // Hash it again on server with proper random salt for security
     const saltRounds = 12;
+    // Add additional server-side bcrypt hashing
     const serverHash = await bcrypt.hash(password, saltRounds);
 
-    const user = this.UserRepository.create({
+    // Create new user
+    const newUser = await this.userRepository.create({
       name,
       email,
       password: serverHash,
     });
-
-    const savedUser = await this.UserRepository.save(user);
-    const { password: _, ...result } = savedUser;
-    return result;
+    return newUser;
   }
 
-  async login(
-    LoginUserDto: LoginUserDto,
-  ): Promise<{ user: Omit<User, "password">; accessToken: string; refreshToken: string }> {
+  async login(LoginUserDto: LoginUserDto): Promise<{
+    user: IUserProfile;
+    accessToken: string;
+    refreshToken: string;
+  }> {
     const { email, password } = LoginUserDto;
 
-    const user = await this.UserRepository.findOne({ where: { email } });
+    // Find user for authentication
+    const user = await this.userRepository.findByEmailForAuth(email);
     if (!user) {
       throw new UnauthorizedException("Invalid credentials");
     }
 
-    // Client sends pre-hashed password, compare with server hash
+    // Verify password matches stored hash
     const isPasswordValid = await bcrypt.compare(password, user.password);
+
     if (!isPasswordValid) {
       throw new UnauthorizedException("Invalid credentials");
     }
 
-    // JWT payload with userId and name for game requirements
     const payload = {
       email: user.email,
-      sub: user.id, // Standard JWT claim for user ID
-      userId: user.id, // Explicit userId for game requirements
-      name: user.name, // User's name for game requirements
+      sub: user.id,
+      userId: user.id,
+      name: user.name,
     };
-    const accessToken = this.jwtService.sign(payload);
-    const refreshToken = await this.generateRefreshToken(user.id);
+    const accessToken = this.jwtService.sign(payload, { expiresIn: "15m" });
+    const refreshToken = this.generateRefreshToken(user.id);
 
-    const { password: _, ...result } = user;
+    // Return clean user object without password
+    const userProfile: IUserProfile = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+      created_by: user.created_by,
+      updated_by: user.updated_by,
+    };
+
     return {
-      user: result,
+      user: userProfile,
       accessToken,
       refreshToken,
     };
   }
 
-  private async generateRefreshToken(userId: number): Promise<string> {
-    const token = crypto.randomBytes(64).toString("hex");
-    const expiresAt = new Date();
-    const refreshExpireDays = this.configService.get<number>("jwt.refreshExpiresInDays") || 7;
-    expiresAt.setDate(expiresAt.getDate() + refreshExpireDays);
-
-    const refreshToken = this.refreshTokenRepository.create({
-      token,
-      userId,
-      expiresAt,
-    });
-
-    await this.refreshTokenRepository.save(refreshToken);
-    return token;
+  private generateRefreshToken(userId: number): string {
+    // Generate stateless refresh token with longer expiry
+    const refreshPayload = {
+      sub: userId,
+      userId: userId,
+      type: "refresh",
+    };
+    return this.jwtService.sign(refreshPayload, { expiresIn: "7d" });
   }
 
-  async refreshAccessToken(refreshToken: string): Promise<{ accessToken: string }> {
-    const storedToken = await this.refreshTokenRepository.findOne({
-      where: { token: refreshToken },
-      relations: ["user"],
-    });
+  async refreshAccessToken(
+    refreshToken: string,
+  ): Promise<{ accessToken: string }> {
+    try {
+      // Verify the refresh token JWT
+      const decoded = this.jwtService.verify(refreshToken);
 
-    if (!storedToken || storedToken.revoked || storedToken.expiresAt < new Date()) {
+      if (decoded.type !== "refresh") {
+        throw new UnauthorizedException("Invalid refresh token");
+      }
+
+      // Get fresh user data to ensure user still exists
+      const user = await this.userRepository.findById(decoded.userId);
+      if (!user) {
+        throw new UnauthorizedException("User not found");
+      }
+
+      // Generate new access token with fresh user data
+      const payload = {
+        email: user.email,
+        sub: user.id,
+        userId: user.id,
+        name: user.name,
+      };
+      const accessToken = this.jwtService.sign(payload, { expiresIn: "15m" });
+
+      return { accessToken };
+    } catch (error) {
       throw new UnauthorizedException("Invalid or expired refresh token");
     }
-
-    const payload = {
-      email: storedToken.user.email,
-      sub: storedToken.user.id,
-      name: storedToken.user.name,
-    };
-    const accessToken = this.jwtService.sign(payload);
-
-    return { accessToken };
   }
 
   async revokeRefreshToken(refreshToken: string): Promise<void> {
-    const storedToken = await this.refreshTokenRepository.findOne({
-      where: { token: refreshToken },
-    });
-
-    if (storedToken) {
-      storedToken.revoked = true;
-      await this.refreshTokenRepository.save(storedToken);
-    }
+    // Stateless tokens expire naturally
+    return;
   }
 
-  async findAll(): Promise<Omit<User, "password">[]> {
-    const users = await this.UserRepository.find();
-    return users.map(({ password, ...user }) => user);
+  async findAll(): Promise<IUserProfile[]> {
+    return await this.userRepository.findAll();
+  }
+
+  async generateTokensForUser(
+    userId: number,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const user = await this.userRepository.findById(userId);
+
+    if (!user) {
+      throw new UnauthorizedException("User not found");
+    }
+
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      userId: user.id,
+      name: user.name,
+    };
+
+    const accessToken = this.jwtService.sign(payload, { expiresIn: "15m" });
+    const refreshToken = this.generateRefreshToken(user.id);
+
+    return { accessToken, refreshToken };
   }
 }

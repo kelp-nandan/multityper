@@ -1,13 +1,5 @@
-$primary-gradient: linear-gradient(90deg, #667eea, #764ba2);
-$primary-light: #667eea;
-$primary-dark: #764ba2;
-$white: #fff;
-$light-gray: #f7f7ff;
-$border-gray: #d0d0d0;
-$light-border: #e0e0e0;
-
-$transition-smooth: all 0.2s ease;
-$transition-transform: transform 0.2s ease, box-shadow 0.2s ease;
+@import '../styles/colors.scss';
+@import '../styles/typography.scss';
 
 .lobby-container {
   background: $primary-gradient;
@@ -73,7 +65,7 @@ $transition-transform: transform 0.2s ease, box-shadow 0.2s ease;
 
     span {
       font-weight: 600;
-      color: $primary-dark;
+      color: $primary-gradient-end;
     }
   }
 
@@ -101,7 +93,7 @@ $transition-transform: transform 0.2s ease, box-shadow 0.2s ease;
 
     .button-secondary {
       background-color: $light-border;
-      color: $primary-dark;
+      color: $primary-gradient-end;
       border: none;
       padding: 10px 22px;
       border-radius: 6px;
@@ -122,14 +114,14 @@ $transition-transform: transform 0.2s ease, box-shadow 0.2s ease;
     padding: 16px 22px;
     background: linear-gradient(90deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
     border-radius: 8px;
-    border: 2px solid $primary-light;
+    border: 2px solid $primary-gradient-start;
     width: 100%;
 
     p {
       margin: 0;
       font-size: 16px;
       font-weight: 600;
-      color: $primary-light;
+      color: $primary-gradient-start;
       text-align: center;
       animation: pulse 2s infinite;
     }

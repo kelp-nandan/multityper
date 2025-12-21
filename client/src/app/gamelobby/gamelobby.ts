@@ -3,7 +3,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { IRoom } from '../interfaces/room.interface';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../identity/services/auth.service';
 import { RoomService } from '../services/room.service';
 import { SocketService } from '../services/socket.service';
 

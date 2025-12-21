@@ -1,9 +1,11 @@
 import { Module } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
 import { ChatGateWay } from "./rooms.gateway";
 import { RedisModule } from "src/redis/redis.module";
+import { AuthModule } from "src/auth/auth.module";
+import { WsJwtGuard } from "src/auth/guards/ws-jwt.guard";
+
 @Module({
-  providers: [JwtService, ChatGateWay],
-  imports: [RedisModule],
+  imports: [RedisModule, AuthModule],
+  providers: [ChatGateWay, WsJwtGuard],
 })
 export class ChatModule {}

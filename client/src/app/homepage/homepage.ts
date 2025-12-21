@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { IRoom } from '../interfaces/room.interface';
 import { Modal } from '../modal/modal';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../identity/services/auth.service';
 import { RoomService } from '../services/room.service';
 import { SocketService } from '../services/socket.service';
 
@@ -47,15 +47,21 @@ export class Homepage implements OnInit {
   
 
   ngOnInit() {
+    console.log('Homepage ngOnInit called');
     if (!this.authService.isAuthenticated()) {
+      console.log('User not authenticated, redirecting to login');
       this.router.navigate(['/login']);
       return;
     }
 
     const currentUser = this.authService.currentUser();
+    console.log('Current user from authService:', currentUser);
     if (currentUser) {
-      this.user.set(currentUser);
+      // Handle Sequelize objects by extracting dataValues if present
+      const cleanUser = (currentUser as any)?.dataValues || currentUser;
+      this.user.set(cleanUser);
     } else {
+      console.log('No current user, fetching profile...');
       this.fetchUserProfile();
     }
   }
@@ -84,7 +90,6 @@ export class Homepage implements OnInit {
   handleCreateConfirm() {
     this.socketService.handleCreateRoom({ roomName: this.roomName() });
     this.showCreateModal.set(false);
-    this.router.navigate(['/participants']);
     this.roomName.set('');
   }
 
@@ -97,15 +102,21 @@ export class Homepage implements OnInit {
 
 
   fetchUserProfile() {
+    console.log('Fetching user profile...');
     this.isLoading.set(true);
     this.authService.getUserProfile().subscribe({
       next: (response) => {
+        console.log('Profile response:', response);
         this.isLoading.set(false);
-        if (response.success && response.data.user) {
-          this.user.set(response.data.user);
+        if (response.data.user) {
+          console.log('User data:', response.data.user);
+          // Handle Sequelize objects by extracting dataValues if present
+          const cleanUser = (response.data.user as any)?.dataValues || response.data.user;
+          this.user.set(cleanUser);
         }
       },
       error: (error) => {
+        console.error('Error fetching user profile:', error);
         this.isLoading.set(false);
         console.error('Error fetching user profile:', error);
         this.authService.logout();
