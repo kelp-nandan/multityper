@@ -1,22 +1,35 @@
-import { UseGuards } from "@nestjs/common";
 import {
-  ConnectedSocket,
-  MessageBody,
-  SubscribeMessage,
   WebSocketGateway,
-  WebSocketServer,
-  WsException,
-} from "@nestjs/websockets";
-import { Server, Socket } from "socket.io";
-import { WsJwtGuard } from "src/auth/guards/ws-jwt.guard";
-import { wsConfig } from "src/config/wsConfig";
-import { RedisService } from "src/redis/redis.service";
-import { v4 as uuid4 } from "uuid";
+  SubscribeMessage,
+  MessageBody,
+  ConnectedSocket,
+  WebSocketServer
+} from '@nestjs/websockets';
+import { UseGuards, Logger } from '@nestjs/common';
+import { Server, Socket } from 'socket.io';
+import { WsJwtGuard } from '../auth/guards/ws-jwt.guard';
+import { RedisService } from '../redis/redis.service';
+import { ParagraphService } from '../paragraph/paragraph.service';
+import { wsConfig } from '../config/wsConfig';
+import { WsException } from '@nestjs/websockets';
+import { v4 as uuid4 } from 'uuid';
+
+interface IPlayerStats {
+  wpm: number;
+  accuracy: number;
+  totalMistakes: number;
+  timeTakenSeconds: number;
+}
 
 @WebSocketGateway(wsConfig)
 @UseGuards(WsJwtGuard)
 export class RoomGateWay {
-  constructor(private redisService: RedisService) {}
+  private readonly logger = new Logger(RoomGateWay.name);
+
+  constructor(
+    private redisService: RedisService,
+    private paragraphService: ParagraphService
+  ) { }
   @WebSocketServer()
   server: Server;
 
@@ -27,27 +40,31 @@ export class RoomGateWay {
   ) {
     const roomId = uuid4();
     try {
-      await this.redisService.setRoom({
-        roomId,
-        data: {
-          roomName: data.roomName,
-          players: [
-            {
-              userId: client.data.user.id,
-              userName: client.data.user.name,
-              isCreated: true,
-            },
-          ],
-          isGameStarted: false,
-        },
+      await this.redisService.setRoom(roomId, {
+        roomName: data.roomName,
+        players: [
+          {
+            userId: client.data.user.id,
+            userName: client.data.user.name,
+            isCreated: true,
+          },
+        ],
+        isGameStarted: false,
       });
       const newRoom = await this.redisService.getRoom(roomId);
-      this.server.emit("created-room", {
+      client.join(roomId);
+      // Emit to creator only
+      client.emit("room-created-by-me", {
+        key: roomId,
+        data: newRoom,
+      });
+      // Emit to all other clients (just for room list update)
+      client.broadcast.emit("new-room-available", {
         key: roomId,
         data: newRoom,
       });
     } catch (err) {
-      console.log(err);
+      this.logger.error('Error creating room', err);
     }
   }
 
@@ -56,7 +73,17 @@ export class RoomGateWay {
     try {
       const user = client.data.user;
       const roomData = await this.redisService.getRoom(data.roomId);
-      if (!roomData) return;
+      if (!roomData) {
+        client.emit("join-room-error", { message: "Room not found" });
+        return;
+      }
+
+      // Check if room is locked (game started or countdown started)
+      if (roomData.isGameStarted) {
+        client.emit("join-room-error", { message: "Cannot join room - game already started" });
+        return;
+      }
+
       const players = roomData.players || [];
       const existingIndex = players.findIndex(player => {
         return player.userId === user.id || player.userName === user.name;
@@ -77,9 +104,12 @@ export class RoomGateWay {
 
       roomData.players = players;
       await this.redisService.setRoom(data.roomId, roomData);
+      client.join(data.roomId);
+      client.emit("joined-room", { key: data.roomId, data: roomData });
       this.server.emit("room-updated", { key: data.roomId, data: roomData });
     } catch (err) {
-      console.error(err);
+      this.logger.error('Error joining room', err);
+      client.emit("join-room-error", { message: "Failed to join room" });
     }
   }
 
@@ -95,21 +125,71 @@ export class RoomGateWay {
     client.emit("set-all-rooms", data);
   }
 
+
+
   @SubscribeMessage("countdown")
-  async handleStartCountdown(@ConnectedSocket() client: Socket, @MessageBody() roomId: string) {
+  async handleCountdown(@ConnectedSocket() client: Socket, @MessageBody() roomId: string) {
     const userId = client.data.user.id;
     const roomData = await this.redisService.getRoom(roomId);
-    if (!roomData) return;
-    const host = roomData.players.find(player => player.isCreated && player.userId === userId);
 
-    if (!host) {
-      throw new WsException("Only Host can start the game");
+    if (!roomData) {
+      throw new WsException("Room not found");
     }
+
+    const isCreator = roomData.players.some(
+      player => player.userId === userId && player.isCreated === true
+    );
+
+    if (!isCreator) {
+      throw new WsException("Only room creator can start the game");
+    }
+
+    // Lock the room so no new players can join
     roomData.isGameStarted = true;
-    this.server.to(roomId).emit("room-updated", roomData);
+    await this.redisService.setRoom(roomId, roomData);
+
+    // Emit lock-room event to all clients
+    this.server.emit('lock-room', { key: roomId, data: roomData });
+
+    // Emit game-started to room participants to navigate them
+    this.server.to(roomId).emit("game-started", { key: roomId, data: roomData });
+
+    // Start 10-second countdown
     setTimeout(async () => {
-      await this.redisService.setRoom(roomId, roomData);
-      this.server.to(roomId).emit("room-updated", roomData);
+      try {
+        // Get random paragraph after countdown
+        const paragraph = await this.paragraphService.getRandomParagraph();
+
+        // Update room data with paragraph
+        const updatedRoomData = await this.redisService.getRoom(roomId);
+        if (updatedRoomData) {
+          // Emit paragraph to all players in the room
+          this.server.to(roomId).emit("paragraph-ready", {
+            roomId,
+            paragraph: paragraph.content,
+            paragraphId: paragraph.id
+          });
+        }
+      } catch (error) {
+        this.logger.error('Error fetching paragraph', error);
+        this.server.to(roomId).emit("game-error", {
+          message: "Failed to load game content"
+        });
+      }
     }, 10000);
+  }
+
+
+  @SubscribeMessage("player-finished")
+  async handlePlayerFinished(@ConnectedSocket() client: Socket, @MessageBody() data: { stats: IPlayerStats }) {
+    const userId = client.data.user.id;
+
+    // Broadcast the completion to other players for real-time leaderboards
+    // In the next step, we will store this in Redis to aggregate final results
+    this.server.emit("player-completed-run", {
+      userId,
+      userName: client.data.user.name,
+      stats: data.stats
+    });
   }
 }

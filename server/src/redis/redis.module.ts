@@ -20,7 +20,7 @@ import { RedisService } from "./redis.service";
           database: config.get<number>("REDIS_DB"),
         });
         client.on("error", err => {
-          console.log(err.message);
+          // Redis connection error will be handled by the application
         });
         await client.connect();
         return client;
@@ -30,4 +30,4 @@ import { RedisService } from "./redis.service";
   ],
   exports: ["REDIS_CLIENT", RedisService],
 })
-export class RedisModule {}
+export class RedisModule { }

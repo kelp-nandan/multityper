@@ -39,14 +39,14 @@ export class ErrorHandler {
   ]);
 
   static handleError(
-    error: any,
+    error: Error | HttpException | unknown,
     defaultMessage: string = "Operation failed",
   ): never {
     if (error instanceof HttpException) {
       throw error;
     }
 
-    const errorMessage = error.message?.toLowerCase() || "";
+    const errorMessage = (error as Error)?.message?.toLowerCase() || "";
 
     for (const [key, config] of this.errorMap) {
       if (errorMessage.includes(key)) {

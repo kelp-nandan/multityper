@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import * as CryptoJS from 'crypto-js';
 import { Observable, Subscription, interval } from 'rxjs';
 import { HttpService } from '../../services/http.service';
-import { IUser, IAuthResponse } from '../../interfaces/auth.interfaces';
+import { IUser, IAuthResponse, IRegisterRequest } from '../../interfaces/auth.interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -70,7 +70,7 @@ export class AuthService {
     return this.httpService.login({ email, password: hashedPassword });
   }
 
-  register(userData: any): Observable<IAuthResponse> {
+  register(userData: IRegisterRequest): Observable<IAuthResponse> {
     // Hash password client-side
     const hashedPassword = this.encryptPassword(userData.password);
     return this.httpService.register({
@@ -121,7 +121,7 @@ export class AuthService {
       const response = await this.httpService.refreshToken().toPromise();
       // If we reach here, refresh was successful (200 status)
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Refresh failed - token expired or network error
       return false;
     }

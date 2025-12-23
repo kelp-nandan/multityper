@@ -1,0 +1,181 @@
+@use '../styles/colors.scss' as colors;
+@use '../styles/typography.scss' as typography;
+
+.game-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg,
+            colors.$primary-gradient-start,
+            colors.$primary-gradient-end );
+    position: relative;
+    overflow: hidden;
+}
+
+.game-container.blurred>.game-content {
+    filter: blur(0.5rem);
+    pointer-events: none;
+}
+
+.countdown-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(0.625rem);
+}
+
+.countdown-timer {
+    text-align: center;
+    color: white;
+}
+
+.timer-display {
+    font-size: 8rem;
+    font-weight: typography.$font-weight-700;
+    margin: 0;
+    text-shadow: 0 0 2rem rgba(255, 255, 255, 0.5);
+    animation: pulse 1s ease-in-out infinite alternate;
+}
+
+.timer-text {
+    font-size: 1.5rem;
+    margin-top: 1rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.2rem;
+}
+
+@keyframes pulse {
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.1);
+    }
+}
+
+.completion-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(0.625rem);
+}
+
+.game-content {
+    padding: 2rem;
+    opacity: 0;
+    transform: translateY(1.25rem);
+    transition: all 0.4s ease;
+
+    &.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.typing-container {
+    max-width: 60rem;
+    margin: 0 auto;
+    padding: 2.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 1.25rem;
+    backdrop-filter: blur(0.75rem);
+}
+
+.stanza-box {
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 0.75rem;
+}
+
+.character-wrapper {
+    font-size: 1.6rem;
+    line-height: 2.6rem;
+    font-family: 'Courier New', monospace;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 0 0.25rem rgba(255, 255, 255, 0.25);
+}
+
+.word {
+    display: inline-block;
+    margin-right: 0.4rem;
+    padding: 0.15rem 0.25rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+
+    &.pending {
+        opacity: 0.35;
+    }
+
+    &.completed {
+        opacity: 0.8;
+    }
+
+    &.active {
+        opacity: 1;
+        background: rgba(255, 215, 0, 0.2);
+        box-shadow: 0 0 0.6rem rgba(255, 215, 0, 0.4);
+    }
+}
+
+.char {
+    &.correct {
+        color: #4caf50;
+    }
+
+    &.incorrect {
+        color: #ff5252;
+        text-decoration: underline wavy #ff5252;
+    }
+
+    &.pending {
+        color: rgba(255, 255, 255, 0.6);
+    }
+}
+
+.space {
+    white-space: pre;
+}
+
+.hidden-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.stats-card {
+    text-align: center;
+    color: white;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+.stat-item {
+    .label {
+        font-size: 1rem;
+        opacity: 0.7;
+        text-transform: uppercase;
+    }
+
+    .value {
+        font-size: 2.2rem;
+        font-weight: typography.$font-weight-700;
+    }
+}

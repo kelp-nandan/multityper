@@ -108,6 +108,8 @@ export class Homepage implements OnInit {
     });
   }
 
+  
+
   onLogout() {
     if (confirm('Are you sure you want to logout?'))
       this.authService.logout();

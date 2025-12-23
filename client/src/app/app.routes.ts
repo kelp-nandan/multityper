@@ -1,33 +1,39 @@
 import { Routes } from '@angular/router';
-import {Login} from './identity/login/login';
-import {Homepage} from './homepage/homepage';
+import { Login } from './identity/login/login';
+import { Homepage } from './homepage/homepage';
 import { authGuard } from './identity/guards/auth.guard';
 
 export const routes: Routes = [
   {
-    path:'',
+    path: '',
     component: Login
   },
   {
-    path:'login',
+    path: 'login',
     canActivate: [authGuard],
     component: Login,
-    data: { requiresAuth: false}
+    data: { requiresAuth: false }
   },
-  { 
+  {
     path: 'homepage',
     canActivate: [authGuard],
     component: Homepage,
-    data: { requiresAuth: true}
+    data: { requiresAuth: true }
   },
   {
     path: 'participants',
     canActivate: [authGuard],
     loadComponent: () => import('./gamelobby/gamelobby').then(c => c.Gamelobby),
-    data: { requiresAuth: true}
+    data: { requiresAuth: true }
   },
   {
-    path:'**', 
-    redirectTo:''
+    path: 'game-dashboard',
+    canActivate: [authGuard],
+    loadComponent: () => import('./game-dashboard/game-dashboard').then(c => c.GameDashboard),
+    data: { requiresAuth: true }
+  },
+  {
+    path: '**',
+    redirectTo: ''
   }
 ];

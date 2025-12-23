@@ -1,11 +1,12 @@
 import {
-  Body,
-  Controller,
-  Post,
-  ValidationPipe,
-  Res,
-  Req,
+    Body,
+    Controller,
+    Post,
+    ValidationPipe,
+    Res,
+    Req,
 } from "@nestjs/common";
+import type { Request, Response } from "express";
 import { CreateUserDto } from "../users/dto/create-user.dto";
 import { LoginUserDto } from "../users/dto/login-user.dto";
 import { UsersService } from "../users/users.service";
@@ -17,91 +18,91 @@ const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 @Controller("api/auth")
 export class AuthController {
-  constructor(private readonly usersService: UsersService) {}
+    constructor(private readonly usersService: UsersService) { }
 
-  @Post("register")
-  async register(
-    @Body(ValidationPipe) createUserDto: CreateUserDto,
-    @Res({ passthrough: true }) response: any,
-  ) {
-    try {
-      const user = await this.usersService.register(createUserDto);
-      const { accessToken, refreshToken } =
-        await this.usersService.generateTokensForUser(user.id);
+    @Post("register")
+    async register(
+        @Body(ValidationPipe) createUserDto: CreateUserDto,
+        @Res({ passthrough: true }) response: Response,
+    ) {
+        try {
+            const user = await this.usersService.register(createUserDto);
+            const { accessToken, refreshToken } =
+                await this.usersService.generateTokensForUser(user.id);
 
-      response.cookie("access_token", accessToken, {
-        httpOnly: true,
-        secure: ENV.isProduction(),
-        sameSite: "lax",
-        maxAge: ACCESS_TOKEN_MAX_AGE,
-      });
+            response.cookie("access_token", accessToken, {
+                httpOnly: true,
+                secure: ENV.isProduction(),
+                sameSite: "lax",
+                maxAge: ACCESS_TOKEN_MAX_AGE,
+            });
 
-      response.cookie("refresh_token", refreshToken, {
-        httpOnly: true,
-        secure: ENV.isProduction(),
-        sameSite: "lax",
-        maxAge: REFRESH_TOKEN_MAX_AGE,
-      });
+            response.cookie("refresh_token", refreshToken, {
+                httpOnly: true,
+                secure: ENV.isProduction(),
+                sameSite: "lax",
+                maxAge: REFRESH_TOKEN_MAX_AGE,
+            });
 
-      return {
-        message: "User registered successfully",
-        data: { user },
-      };
-    } catch (error) {
-      ErrorHandler.handleError(error, "Registration failed");
+            return {
+                message: "User registered successfully",
+                data: { user },
+            };
+        } catch (error) {
+            ErrorHandler.handleError(error, "Registration failed");
+        }
     }
-  }
 
-  @Post("login")
-  async login(
-    @Body(ValidationPipe) loginUserDto: LoginUserDto,
-    @Res({ passthrough: true }) response: any,
-  ) {
-    try {
-      const { user, accessToken, refreshToken } =
-        await this.usersService.login(loginUserDto);
+    @Post("login")
+    async login(
+        @Body(ValidationPipe) loginUserDto: LoginUserDto,
+        @Res({ passthrough: true }) response: Response,
+    ) {
+        try {
+            const { user, accessToken, refreshToken } =
+                await this.usersService.login(loginUserDto);
 
-      response.cookie("access_token", accessToken, {
-        httpOnly: true,
-        secure: ENV.isProduction(),
-        sameSite: "lax",
-        maxAge: ACCESS_TOKEN_MAX_AGE,
-      });
+            response.cookie("access_token", accessToken, {
+                httpOnly: true,
+                secure: ENV.isProduction(),
+                sameSite: "lax",
+                maxAge: ACCESS_TOKEN_MAX_AGE,
+            });
 
-      response.cookie("refresh_token", refreshToken, {
-        httpOnly: true,
-        secure: ENV.isProduction(),
-        sameSite: "lax",
-        maxAge: REFRESH_TOKEN_MAX_AGE,
-      });
+            response.cookie("refresh_token", refreshToken, {
+                httpOnly: true,
+                secure: ENV.isProduction(),
+                sameSite: "lax",
+                maxAge: REFRESH_TOKEN_MAX_AGE,
+            });
 
-      return {
-        message: "Login successful",
-        data: { user },
-      };
-    } catch (error) {
-      ErrorHandler.handleError(error, "Login failed");
+            return {
+                message: "Login successful",
+                data: { user },
+            };
+        } catch (error) {
+            ErrorHandler.handleError(error, "Login failed");
+        }
     }
-  }
 
-  @Post("logout")
-  async logout(@Req() request: any, @Res({ passthrough: true }) response: any) {
-    try {
-      const refreshToken = request.cookies?.refresh_token;
+    @Post("logout")
+    async logout(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
+        try {
+            const refreshToken = request.cookies?.refresh_token;
 
-      if (refreshToken) {
-        await this.usersService.revokeRefreshToken(refreshToken);
-      }
+            if (refreshToken) {
+                await this.usersService.revokeRefreshToken(refreshToken);
+            }
 
-      response.clearCookie("access_token");
-      response.clearCookie("refresh_token");
+            response.clearCookie("access_token");
+            response.clearCookie("refresh_token");
 
-      return { message: "Logged out successfully" };
-    } catch (error) {
-      response.clearCookie("access_token");
-      response.clearCookie("refresh_token");
+            return { message: "Logged out successfully" };
+        } catch (error) {
+            response.clearCookie("access_token");
+            response.clearCookie("refresh_token");
 
-      return { message: "Logged out successfully" };
+            return { message: "Logged out successfully" };
+        }
     }
-  }
 }

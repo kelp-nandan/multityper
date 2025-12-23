@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { createClient, RedisClientType } from "redis";
 import { IGetRooms } from "src/interfaces/rooms.interface";
+
 @Injectable()
 export class RedisService implements OnModuleInit {
   private client: RedisClientType;
@@ -19,20 +20,20 @@ export class RedisService implements OnModuleInit {
     await this.client.quit();
   }
 
-  async setRoom(id: string, data: IGetRooms) {
-    await this.client.set(data.roomId, JSON.stringify(data.data));
+  async setRoom(id: string, data: IGetRooms['data']): Promise<void> {
+    await this.client.set(id, JSON.stringify(data));
   }
 
-  async getRoom(id: string) {
+  async getRoom(id: string): Promise<IGetRooms['data'] | null> {
     const data = await this.client.get(id);
     return data ? JSON.parse(data) : null;
   }
 
-  async deleteRoom(id: string) {
+  async deleteRoom(id: string): Promise<void> {
     await this.client.del(id);
   }
 
-  async getAllRooms() {
+  async getAllRooms(): Promise<IGetRooms[]> {
     const rooms: IGetRooms[] = [];
     let cursor = "0";
 
@@ -50,12 +51,12 @@ export class RedisService implements OnModuleInit {
 
         values.forEach((value, index) => {
           if (value) {
+            const roomData: IGetRooms['data'] = JSON.parse(value);
             rooms.push({
               key: keys[index],
-              data: JSON.parse(value),
+              data: roomData,
             });
           }
-          console.log("keys[index]: ", keys[index]);
         });
       }
     } while (cursor !== "0");

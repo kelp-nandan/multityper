@@ -1,0 +1,83 @@
+<div class="game-container" [class.blurred]="!gameStarted()">
+
+    @if (!gameStarted()) {
+    <div class="countdown-overlay">
+        <div class="countdown-timer">
+            @if (time() > 0) {
+            <h1 class="timer-display">{{ time() }}</h1>
+            <p class="timer-text">Get Ready...</p>
+            } @else if (!paragraphLoaded()) {
+            <h1 class="timer-display">Loading...</h1>
+            }
+        </div>
+    </div>
+    }
+
+    <div class="game-content" [class.visible]="gameStarted()">
+
+        @if (isFinished()) {
+        <div class="completion-overlay">
+            <div class="stats-card">
+                <h2>Challenge Complete!</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="label">Accuracy</span>
+                        <span class="value">
+                            {{
+                            (correctCount() + totalErrors()) > 0
+                            ? (correctCount() / (correctCount() + totalErrors()) * 100 | number:'1.0-0')
+                            : 0
+                            }}%
+                        </span>
+                    </div>
+
+                    <div class="stat-item">
+                        <span class="label">Mistakes</span>
+                        <span class="value">{{ totalErrors() }}</span>
+                    </div>
+
+                    <div class="stat-item">
+                        <span class="label">WPM</span>
+                        <span class="value">{{ wpm() }}</span>
+                    </div>
+
+                    <div class="stat-item">
+                        <span class="label">Time</span>
+                        <span class="value">{{ timeTakenSeconds() }}s</span>
+                    </div>
+                </div>
+
+                <p class="wait-text">Waiting for other players to finish...</p>
+            </div>
+        </div>
+        }
+
+        <div class="typing-container">
+            <div class="stanza-box">
+                <div class="character-wrapper">
+
+                    @for (word of wordStates(); track $index) {
+                    <span class="word" [class.active]="$index === currentWordIndex()"
+                        [class.pending]="$index > currentWordIndex()" [class.completed]="$index < currentWordIndex()">
+                        @for (char of word.chars; track $index) {
+                        <span class="char" [class]="char.state">
+                            {{ char.char }}
+                        </span>
+                        }
+                    </span>
+                    <span class="space"> </span>
+                    }
+
+                </div>
+            </div>
+
+            <div class="input-area">
+                <textarea #typingInput class="hidden-input" (input)="onInput($event)" (keydown)="onKeyDown($event)"
+                    [disabled]="!gameStarted() || isFinished()" spellcheck="false" autofocus>
+        </textarea>
+            </div>
+        </div>
+
+    </div>
+</div>

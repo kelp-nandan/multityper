@@ -23,5 +23,8 @@ export const API_ENDPOINTS = {
   },
 
   // Paragraph endpoints
-  PARAGRAPHS: `${environment.apiUrl}/paragraphs`,
+  PARAGRAPHS: {
+    RANDOM: `${environment.apiUrl}/paragraphs/random`,
+    BASE: `${environment.apiUrl}/paragraphs`,
+  },
 } as const;

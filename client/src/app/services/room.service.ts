@@ -3,9 +3,9 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { IRoom } from '../interfaces/room.interface'
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
-export class RoomService{
+export class RoomService {
   private roomsSubject = new BehaviorSubject<IRoom[]>([]);
   rooms$: Observable<IRoom[]> = this.roomsSubject.asObservable();
 
@@ -15,6 +15,9 @@ export class RoomService{
   setRooms(rooms: IRoom[]) {
     this.roomsSubject.next(rooms);
   }
+
+
+
 
   addRoom(room: IRoom) {
     const currentRooms = this.roomsSubject.value;
@@ -33,14 +36,21 @@ export class RoomService{
     this.selectedRoomSubject.next(room);
   }
 
-  clearSelectRoom(){
+  clearSelectRoom() {
     this.selectedRoomSubject.next(null);
+  }
+
+  getCurrentRoom(): IRoom | null {
+    return this.selectedRoomSubject.value;
   }
 
   updateRoom(updatedRoom: IRoom) {
     const currentRooms = this.roomsSubject.value;
     const index = currentRooms.findIndex(r => r.roomId === updatedRoom.roomId);
-    if (index === -1) return;
+    if (index === -1) {
+      console.warn('RoomService: Room not found for update:', updatedRoom.roomId);
+      return;
+    }
     const clonedRoom: IRoom = JSON.parse(JSON.stringify(updatedRoom));
     const newRooms = currentRooms.map(room =>
       room.roomId === updatedRoom.roomId ? clonedRoom : room
