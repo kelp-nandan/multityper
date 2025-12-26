@@ -1,81 +1,90 @@
-// Color Variables
-$primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-$white: #fff;
-$black: #000;
-$text-dark: #2b2b2b;
-$text-light: #666;
-$text-mute: #444;
-$text-gray: #333;
-$text-lighter: #555;
-$light-gray-text: #e0e0e0;
-$bg-light: #f9f9f9;
-$bg-lighter: #f0f0f0;
-$light-gray: #f7f7ff;
-$border-gray: #d0d0d0;
-$light-border: #e0e0e0;
+:root {
+  // Primary Colors
+  --primary: #6366f1;
+  --primary-dark: #5855eb;
+  --primary-gradient-start: #667eea;
+  --primary-gradient-end: #764ba2;
+  --white: #fff;
+  --black: #000;
 
-$primary: #6366f1;
-$primary-dark: #5855eb;
-$primary-gradient-start: #667eea;
-$primary-gradient-end: #764ba2;
-$success: #10b981;
-$success-bg: #d1fae5;
-$success-border: #a7f3d0;
-$success-text: #065f46;
-$error: #ef4444;
-$error-bg: #fee2e2;
-$error-border: #fca5a5;
-$error-text: #dc2626;
+  // Text Colors
+  --text-dark: #2b2b2b;
+  --text-light: #666;
+  --text-mute: #444;
+  --text-gray: #333;
+  --text-lighter: #555;
+  --light-gray-text: #e0e0e0;
+  --text-muted: #6b7280;
+  --header: #1f2937;
+  --label: #374151;
 
-// Typing colors
-$correct-text: #4caf50;
-$incorrect-text: #ff5252;
+  // Background Colors
+  --bg-light: #f9f9f9;
+  --bg-lighter: #f0f0f0;
+  --light-gray: #f7f7ff;
+  --bg-very-light: #f8f9fa;
+  --bg-light-gray: #f1f1f1;
 
-$input-border: #d1d5db;
-$input-focus-shadow: #6366f11a;
-$input-error-shadow: #ef44441a;
-$input-placeholder: #9ca3af;
-$header: #1f2937;
-$label: #374151;
-$toggle-border: #e5e7eb;
-$text-muted: #6b7280;
+  // Border Colors
+  --border-gray: #d0d0d0;
+  --light-border: #e0e0e0;
+  --border-light: #eee;
+  --input-border: #d1d5db;
+  --toggle-border: #e5e7eb;
 
-// Additional colors for leaderboard and forms
-$bg-very-light: #f8f9fa;
-$bg-light-gray: #f1f1f1;
-$border-light: #eee;
-$purple-primary: #6200ee;
-$purple-dark: #3700b3;
+  // Status Colors
+  --success: #10b981;
+  --success-bg: #d1fae5;
+  --success-border: #a7f3d0;
+  --success-text: #065f46;
+  --error: #ef4444;
+  --error-bg: #fee2e2;
+  --error-border: #fca5a5;
+  --error-text: #dc2626;
+  --correct-text: #4caf50;
+  --incorrect-text: #ff5252;
 
-// Alpha/Transparency Colors
-$black-alpha-70: #000000b3;
-$black-alpha-80: #000000cc;
-$black-alpha-30: #0000004d;
-$black-alpha-10: #0000001a;
-$black-alpha-04: #0000000a;
-$black-alpha-05: #00000005;
-$black-alpha-50: #00000080;
+  // Special Colors
+  --input-placeholder: #9ca3af;
+  --purple-primary: #6200ee;
+  --purple-dark: #3700b3;
 
-$white-alpha-90: #ffffffe6;
-$white-alpha-95: #fffffff2;
-$white-alpha-60: #ffffff99;
-$white-alpha-50: #ffffff80;
-$white-alpha-40: #ffffff40;
-$white-alpha-33: #ffffff4d;
-$white-alpha-20: #ffffff33;
-$white-alpha-10: #ffffff1a;
-$white-alpha-08: #ffffff14;
+  // Shadow Colors
+  --input-focus-shadow: #6366f11a;
+  --input-error-shadow: #ef44441a;
 
-$primary-alpha-30: #667eea4d;
-$primary-alpha-25: #667eea40;
-$primary-alpha-18: #667eea2e;
-$primary-alpha-15: #667eea26;
-$primary-alpha-12: #667eea1f;
-$primary-alpha-08: #667eea14;
+  // Alpha/Transparency Colors
+  --black-alpha-70: #000000b3;
+  --black-alpha-80: #000000cc;
+  --black-alpha-30: #0000004d;
+  --black-alpha-10: #0000001a;
+  --black-alpha-04: #0000000a;
+  --black-alpha-05: #00000005;
+  --black-alpha-50: #00000080;
+  --white-alpha-90: #ffffffe6;
+  --white-alpha-95: #fffffff2;
+  --white-alpha-60: #ffffff99;
+  --white-alpha-50: #ffffff80;
+  --white-alpha-40: #ffffff40;
+  --white-alpha-33: #ffffff4d;
+  --white-alpha-20: #ffffff33;
+  --white-alpha-10: #ffffff1a;
+  --white-alpha-08: #ffffff14;
+  --primary-alpha-30: #667eea4d;
+  --primary-alpha-25: #667eea40;
+  --primary-alpha-18: #667eea2e;
+  --primary-alpha-15: #667eea26;
+  --primary-alpha-12: #667eea1f;
+  --primary-alpha-08: #667eea14;
+  --primary-end-alpha-08: #764ba214;
+  --gold-alpha-20: #ffd70033;
+  --gold-alpha-40: #ffd70066;
+  --gray-alpha-12: #2425261f;
 
-$primary-end-alpha-08: #764ba214;
-
-$gold-alpha-20: #ffd70033;
-$gold-alpha-40: #ffd70066;
-
-$gray-alpha-12: #2425261f;
+  // Gradients
+  --primary-gradient: linear-gradient(
+    135deg,
+    var(--primary-gradient-start) 0%,
+    var(--primary-gradient-end) 100%
+  );
+}

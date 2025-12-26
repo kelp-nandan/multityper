@@ -2,15 +2,18 @@ import { Controller, HttpException, HttpStatus, Post, Req, Res } from "@nestjs/c
 import type { Request, Response } from "express";
 import { ErrorHandler } from "../common/error-handler";
 import { ENV } from "../config/env.config";
-import { ACCESS_TOKEN_MAX_AGE } from '../constants';
+import { ACCESS_TOKEN_MAX_AGE } from "../constants";
 import { UsersService } from "../users/users.service";
 
 @Controller("api/token")
 export class TokenController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Post("refresh")
-  async refreshToken(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
+  async refreshToken(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<{ message: string }> {
     const refreshToken = request.cookies?.refresh_token;
 
     if (!refreshToken) {

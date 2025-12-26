@@ -8,7 +8,9 @@
     "watch": "ng build --watch --configuration development",
     "serve:ssr:client": "node dist/client/server/server.mjs",
     "format": "npx prettier --write \"src/**/*.{ts,html,scss,css}\"",
-    "format:check": "npx prettier --check \"src/**/*.{ts,html,scss,css}\""
+    "format:check": "npx prettier --check \"src/**/*.{ts,html,scss,css}\"",
+    "lint": "eslint \"src/**/*.{ts,js}\"",
+    "lint:fix": "eslint \"src/**/*.{ts,js}\" --fix"
   },
   "prettier": {
     "printWidth": 100,

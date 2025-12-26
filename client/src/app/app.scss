@@ -1,13 +1,17 @@
+// App Styles
+
 .header {
   background-color: rgb(120, 33, 201);
-  padding: 10px;
+  padding: var(--spacing-10);
 }
+
 h1 {
   align-items: center;
   text-align: center;
   display: flex;
   justify-content: center;
-
+  font-size: var(--font-size-24);
+  font-weight: var(--font-weight-600);
   color: white;
 }
 

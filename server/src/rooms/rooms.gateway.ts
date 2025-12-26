@@ -16,7 +16,7 @@ import { WsJwtGuard } from "../auth/guards/ws-jwt.guard";
 import { wsConfig } from "../config/wsConfig";
 import { MAX_PROGRESS, MIN_PROGRESS, REDIRECT_DELAY } from "../constants";
 import { IPlayerStats } from "../interfaces";
-import { IPlayer } from "../interfaces/rooms.interface";
+import { IFetchRooms, IPlayer, IRoomData } from "../interfaces/rooms.interface";
 import { ParagraphService } from "../paragraph/paragraph.service";
 import { RedisService } from "../redis/redis.service";
 
@@ -28,24 +28,23 @@ export class RoomGateWay implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private redisService: RedisService,
     private paragraphService: ParagraphService,
-  ) { }
+  ) {}
   @WebSocketServer()
   server: Server;
 
-  handleConnection(client: Socket) {
+  handleConnection(client: Socket): void {
     this.logger.log(`Client connected: ${client.id}`);
   }
 
-  handleDisconnect(client: Socket) {
+  handleDisconnect(client: Socket): void {
     this.logger.log(`Client disconnected: ${client.id}`);
-    // Clean up user from rooms if needed
   }
 
   @SubscribeMessage("create-room")
   async handleCreateRoom(
     @ConnectedSocket() client: Socket,
     @MessageBody() name: { roomName: string },
-  ) {
+  ): Promise<void> {
     const roomId = uuid4();
     try {
       await this.redisService.setRoom({
@@ -81,12 +80,17 @@ export class RoomGateWay implements OnGatewayConnection, OnGatewayDisconnect {
   async handleLeaveRoom(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { roomId: string },
-  ) {
+  ): Promise<void> {
     try {
       const roomData = await this.redisService.getRoom(data.roomId);
+      if (!roomData) {
+        this.logger.error("Room not found");
+        return;
+      }
+
       const userId = client.data.user.id;
 
-      const updatedplayers = roomData?.players.filter((player: IPlayer) => {
+      const updatedplayers = roomData.players.filter((player: IPlayer) => {
         return player.userId !== userId;
       });
 
@@ -101,12 +105,15 @@ export class RoomGateWay implements OnGatewayConnection, OnGatewayDisconnect {
       client.to(data.roomId).emit("room-updated", { key: data.roomId, data: roomData });
       this.server.emit("room-updated", roomData);
     } catch (err) {
-      this.logger.error("Error creating room", err);
+      this.logger.error("Error leaving room", err);
     }
   }
 
   @SubscribeMessage("get-room")
-  async handleGetRooms(@MessageBody() data: { roomId: string }, @ConnectedSocket() client: Socket) {
+  async handleGetRooms(
+    @MessageBody() data: { roomId: string },
+    @ConnectedSocket() client: Socket,
+  ): Promise<void> {
     const roomData = await this.redisService.getRoom(data.roomId);
     if (!roomData) {
       client.emit("join-room-error", {
@@ -123,7 +130,10 @@ export class RoomGateWay implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage("join-room")
-  async handleJoinRoom(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string }) {
+  async handleJoinRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { roomId: string },
+  ): Promise<void> {
     try {
       const user = client.data.user;
       const roomData = await this.redisService.getRoom(data.roomId);
@@ -178,19 +188,22 @@ export class RoomGateWay implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage("destroy-room")
-  async handleDestroyRoom(@MessageBody() data: { roomId: string }) {
+  async handleDestroyRoom(@MessageBody() data: { roomId: string }): Promise<void> {
     await this.redisService.deleteRoom(data.roomId);
     this.server.emit("room-destroyed", { roomId: data.roomId });
   }
 
   @SubscribeMessage("get-all-rooms")
-  async handlegetAllrooms(@ConnectedSocket() client: Socket) {
+  async handlegetAllrooms(@ConnectedSocket() client: Socket): Promise<void> {
     const data = await this.redisService.getAllRooms();
     client.emit("set-all-rooms", data);
   }
 
   @SubscribeMessage("countdown")
-  async handleCountdown(@ConnectedSocket() client: Socket, @MessageBody() roomId: string) {
+  async handleCountdown(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() roomId: string,
+  ): Promise<void> {
     const userId = client.data.user.id;
     const roomData = await this.redisService.getRoom(roomId);
 
@@ -222,10 +235,10 @@ export class RoomGateWay implements OnGatewayConnection, OnGatewayDisconnect {
     // Start 10-second countdown
     setTimeout(async () => {
       try {
-        // Get random paragraph after countdown
+        // grab random paragraph
         const paragraph = await this.paragraphService.getRandomParagraph();
 
-        // Update room data with paragraph
+        // add paragraph to room
         const updatedRoomData = await this.redisService.getRoom(roomId);
         if (updatedRoomData) {
           // Emit paragraph to all players in the room
@@ -248,7 +261,7 @@ export class RoomGateWay implements OnGatewayConnection, OnGatewayDisconnect {
   async handlePlayerFinished(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { roomId: string; stats: IPlayerStats },
-  ) {
+  ): Promise<void> {
     const userId = client.data.user.id;
     const roomData = await this.redisService.getRoom(data.roomId);
 
@@ -256,12 +269,12 @@ export class RoomGateWay implements OnGatewayConnection, OnGatewayDisconnect {
 
     const playerIndex = roomData.players.findIndex((p: IPlayer) => p.userId === userId);
     if (playerIndex !== -1) {
-      // Initialize stats object if it doesn't exist
+      // set up stats if needed
       if (!roomData.players[playerIndex].stats) {
         roomData.players[playerIndex].stats = {};
       }
 
-      // Update the player stats and mark as finished
+      // save player stats and mark done
       roomData.players[playerIndex].stats = {
         ...roomData.players[playerIndex].stats,
         ...data.stats,
@@ -274,7 +287,7 @@ export class RoomGateWay implements OnGatewayConnection, OnGatewayDisconnect {
       // Broadcast this individual completion for the live progress bars
       this.server.to(data.roomId).emit("room-updated", { key: data.roomId, data: roomData });
 
-      // Check if every player in that room has finished
+      // see if everyone's done
       const allFinished = roomData.players.every((p: IPlayer) => p.stats?.finished === true);
 
       if (allFinished) {
@@ -307,7 +320,7 @@ export class RoomGateWay implements OnGatewayConnection, OnGatewayDisconnect {
   async handleLiveProgress(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { progress: number; wpm?: number; accuracy?: number; roomId: string },
-  ) {
+  ): Promise<void> {
     try {
       const userId = client.data.user.id;
 

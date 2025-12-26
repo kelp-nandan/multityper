@@ -34,8 +34,8 @@ export const authGuard: CanActivateFn = async (route, state) => {
       }
       return false;
     }
-  } catch (error) {
-    // Handle timeout or other errors
+  } catch {
+    // something went wrong
     if (requiresAuth) {
       router.navigate(['/login'], {
         queryParams: { returnUrl: state.url },

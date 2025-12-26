@@ -1,5 +1,4 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { UserRepository } from "../database/repositories";
@@ -11,7 +10,6 @@ import { IUserProfile } from "./interfaces";
 export class UsersService {
   constructor(
     private jwtService: JwtService,
-    private configService: ConfigService,
     private userRepository: UserRepository,
   ) {}
 
@@ -24,10 +22,10 @@ export class UsersService {
     }
 
     const saltRounds = 12;
-    // Add additional server-side bcrypt hashing
+    // hash password on server too
     const serverHash = await bcrypt.hash(password, saltRounds);
 
-    // Create new user
+    // save new user
     const newUser = await this.userRepository.create({
       name,
       email,
@@ -102,7 +100,7 @@ export class UsersService {
         throw new UnauthorizedException("Invalid refresh token");
       }
 
-      // Get fresh user data to ensure user still exists
+      // make sure user still exists
       const user = await this.userRepository.findById(decoded.userId);
       if (!user) {
         throw new UnauthorizedException("User not found");

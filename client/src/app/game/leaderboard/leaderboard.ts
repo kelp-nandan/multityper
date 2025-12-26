@@ -1,27 +1,14 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
+import { inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 import confetti from 'canvas-confetti';
 
 import { Router } from '@angular/router';
-import { CONFETTI_DURATION, ILeaderboardDisplay, IPlayerData } from '../../interfaces';
+import { ILeaderboardDisplay, IPlayerData } from '../../interfaces/socket.interfaces';
+import { CONFETTI_DURATION } from '../../constants';
 import { RoomService } from '../../services/room.service';
-
-class Player {
-  username: string;
-  wpm: number;
-  accuracy: number;
-  time: number;
-  Total_Wrong: number;
-
-  constructor(username: string, wpm: number, accuracy: number, time: number, Total_Wrong: number) {
-    this.username = username;
-    this.wpm = wpm;
-    this.accuracy = accuracy;
-    this.time = time;
-    this.Total_Wrong = Total_Wrong;
-  }
-}
 
 @Component({
   selector: 'app-leaderboard',
@@ -30,15 +17,16 @@ class Player {
   templateUrl: './leaderboard.html',
   styleUrl: './leaderboard.scss',
 })
-export class Leaderboard implements OnInit {
+export class LeaderBoard implements OnInit, OnDestroy {
   players: ILeaderboardDisplay[] = [];
+  private subscriptions: Subscription[] = [];
 
-  constructor(
-    @Inject(PLATFORM_ID) private platformId: Object,
-    private roomService: RoomService,
-    private router: Router,
-    private route: ActivatedRoute,
-  ) { }
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly roomService = inject(RoomService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.loadFinalResults();
@@ -46,8 +34,8 @@ export class Leaderboard implements OnInit {
   }
 
   loadFinalResults(): void {
-    // First try to get results from query parameters (from redirect)
-    this.route.queryParams.subscribe((params) => {
+    // try to get results from URL params first
+    const paramsSub = this.route.queryParams.subscribe((params) => {
       if (params['results']) {
         try {
           const results = JSON.parse(params['results']);
@@ -57,30 +45,41 @@ export class Leaderboard implements OnInit {
               wpm: p.stats?.wpm || 0,
               accuracy: p.stats?.accuracy || 0,
               time: p.stats?.timeTakenSeconds || 0,
-              Total_Wrong: p.stats?.totalMistakes || 0,
+              totalWrong: p.stats?.totalMistakes || 0,
             }))
-            .sort((a: ILeaderboardDisplay, b: ILeaderboardDisplay) => b.wmp - a.wmp);
+            .sort((a: ILeaderboardDisplay, b: ILeaderboardDisplay) => {
+              if (b.wpm !== a.wpm) return b.wpm - a.wpm;
+              return b.accuracy - a.accuracy;
+            });
           return;
-        } catch (error) {
-          console.error('Error parsing results from query params:', error);
+        } catch {
+          // fallback to room service if parsing fails
         }
       }
 
-      // Fallback: get from room service
+      // fallback to room service
       const room = this.roomService.getCurrentRoom();
       if (room && room.data.players) {
-        //mapping and sorting the player based on highest
+        // sort players by highest wpm, then by accuracy
         this.players = room.data.players
           .map((p: IPlayerData) => ({
             username: p.userName,
-            wmp: p.stats?.wpm || 0,
+            wpm: p.stats?.wpm || 0,
             accuracy: p.stats?.accuracy || 0,
             time: p.stats?.timeTakenSeconds || 0,
-            Total_Wrong: p.stats?.totalMistakes || 0,
+            totalWrong: p.stats?.totalMistakes || 0,
           }))
-          .sort((a: ILeaderboardDisplay, b: ILeaderboardDisplay) => b.wmp - a.wmp);
+          .sort((a: ILeaderboardDisplay, b: ILeaderboardDisplay) => {
+            if (b.wpm !== a.wpm) return b.wpm - a.wpm;
+            return b.accuracy - a.accuracy;
+          });
       }
     });
+    this.subscriptions.push(paramsSub);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   goHome(): void {

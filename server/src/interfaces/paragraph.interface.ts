@@ -8,3 +8,8 @@ export interface IParagraph {
 export interface ICreateParagraph {
   content: string;
 }
+
+export interface IParagraphResponse {
+  id: number;
+  content: string;
+}

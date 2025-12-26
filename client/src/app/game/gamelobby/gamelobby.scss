@@ -1,6 +1,4 @@
-@use '../../styles/colors' as *;
-@use '../../styles/typography' as *;
-
+// Gamelobby Styles
 
 .lobby-container {
   min-height: 100vh;
@@ -15,10 +13,9 @@
 
   background: var(--primary-gradient);
 
-
   .game-title {
     font-size: var(--font-size-48);
-    font-weight: 800;
+    font-weight: var(--font-weight-800);
     color: var(--white);
     text-align: center;
     margin-bottom: var(--spacing-10);
@@ -31,7 +28,6 @@
     font-style: italic;
     margin-bottom: var(--spacing-20);
   }
-
 
   .players-container {
     width: 100%;
@@ -47,7 +43,6 @@
     border: var(--spacing-2) solid var(--light-border);
     border-radius: var(--radius-12);
     box-shadow: 0 var(--spacing-8) var(--spacing-20) var(--primary-alpha-15);
-
 
     .player-card {
       display: flex;
@@ -72,7 +67,7 @@
         gap: var(--spacing-2);
 
         span {
-          font-weight: 600;
+          font-weight: var(--font-weight-600);
           color: var(--primary-gradient-end);
         }
       }
@@ -99,7 +94,7 @@
         border: none;
         padding: var(--spacing-10) var(--spacing-24);
         border-radius: var(--radius-6);
-        font-weight: 600;
+        font-weight: var(--font-weight-600);
         cursor: pointer;
         transition: var(--transition-smooth);
 
@@ -115,7 +110,7 @@
         border: none;
         padding: var(--spacing-10) var(--spacing-24);
         border-radius: var(--radius-6);
-        font-weight: 600;
+        font-weight: var(--font-weight-600);
         cursor: pointer;
         transition: var(--transition-smooth);
 
@@ -125,7 +120,6 @@
       }
     }
 
-
     .waiting-message {
       width: 100%;
       padding: var(--spacing-16) var(--spacing-24);
@@ -134,9 +128,7 @@
       align-items: center;
       justify-content: center;
 
-      background: linear-gradient(90deg,
-          var(--primary-alpha-08),
-          var(--primary-end-alpha-08));
+      background: linear-gradient(90deg, var(--primary-alpha-08), var(--primary-end-alpha-08));
 
       border-radius: var(--radius-8);
       border: var(--spacing-2) solid var(--primary-gradient-start);
@@ -144,7 +136,7 @@
       p {
         margin: 0;
         font-size: var(--font-size-16);
-        font-weight: 600;
+        font-weight: var(--font-weight-600);
         color: var(--primary-gradient-start);
         text-align: center;
         animation: pulse 2s infinite;
@@ -153,16 +145,13 @@
   }
 }
 
-
 .no-room-message {
   margin-top: var(--spacing-40);
   text-align: center;
   color: var(--primary-gradient-end);
 }
 
-
 @keyframes pulse {
-
   0%,
   100% {
     opacity: 1;

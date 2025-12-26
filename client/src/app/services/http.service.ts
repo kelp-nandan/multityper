@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { API_ENDPOINTS } from '../config/api-endpoints';
@@ -8,14 +8,16 @@ import {
   ILoginRequest,
   ILogoutResponse,
   IRegisterRequest,
-  IUsersListResponse
-} from '../interfaces';
+  IUsersListResponse,
+} from '../interfaces/auth.interfaces';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HttpService {
-  constructor(private http: HttpClient) { }
+  private readonly http = inject(HttpClient);
+
+  constructor() {}
 
   login(loginData: ILoginRequest): Observable<IAuthResponse> {
     return this.http.post<IAuthResponse>(API_ENDPOINTS.AUTH.LOGIN, loginData);

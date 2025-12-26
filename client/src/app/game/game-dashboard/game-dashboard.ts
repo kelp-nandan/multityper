@@ -1,66 +1,89 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, NgZone, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  signal,
+  computed,
+  ViewChild,
+  inject,
+  Injector,
+  afterNextRender,
+  runInInjectionContext,
+} from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../identity/services/auth.service';
-import { Liveprogress } from '../liveprogress/liveprogress';
+import { LiveProgress } from '../liveprogress/live-progress';
 import { RoomService } from '../../services/room.service';
 import { SocketService } from '../../services/socket.service';
 
-import { CharState, IAllPlayersFinished, ICharacterState, IParagraphReady, IPlayerData, IPlayerFinished, IRedirectToLeaderboard, IWordState, WordState } from '../../interfaces';
+import {
+  CharState,
+  IGameCompletionData,
+  ICharacterState,
+  IParagraphReady,
+  IPlayerData,
+  IPlayerFinished,
+  ILeaderboardData,
+  IWordState,
+  WordState,
+} from '../../interfaces/socket.interfaces';
 
 @Component({
   selector: 'app-game-dashboard',
   standalone: true,
-  imports: [CommonModule, Liveprogress],
+  imports: [CommonModule, LiveProgress],
   templateUrl: './game-dashboard.html',
   styleUrl: './game-dashboard.scss',
 })
 export class GameDashboard implements OnInit, OnDestroy {
-  @ViewChild('typingInput')
-  typingInput!: ElementRef<HTMLTextAreaElement>;
-
-  // Countdown
   time = signal(10);
 
-  // Game state
   gameStarted = signal(false);
   paragraphLoaded = signal(false);
   isFinished = signal(false);
 
-  // Typing state
   wordStates = signal<IWordState[]>([]);
   currentWordIndex = signal(0);
   charIndexInWord = signal(0);
 
-  // Metrics
   correctCount = signal(0);
   totalErrors = signal(0);
   startTime = signal<number | null>(null);
 
-  // Final stats
+  accuracy = computed(() => {
+    const total = this.correctCount() + this.totalErrors();
+    return total > 0 ? Math.round((this.correctCount() / total) * 100) : 0;
+  });
+
   wpm = signal(0);
   timeTakenSeconds = signal(0);
 
-  // Redirect functionality
   isWaitingForOthers = false;
-  redirectCountdown = 0;
+  redirectCountdown = signal(0);
   currentRoomId = '';
   currentUserId = '';
 
   private progressEmitTimer: NodeJS.Timeout | null = null;
-
   private subscription: Subscription[] = [];
 
-  constructor(
-    private socket: SocketService,
-    private roomService: RoomService,
-    private authService: AuthService,
-    private ngZone: NgZone,
-    private router: Router,
-  ) {
-    // Initialize current room and user IDs
+  // ViewChild
+  @ViewChild('typingInput')
+  typingInput!: ElementRef<HTMLTextAreaElement>;
+
+  private readonly socket = inject(SocketService);
+  private readonly roomService = inject(RoomService);
+  private readonly authService = inject(AuthService);
+  private readonly ngZone = inject(NgZone);
+  private readonly router = inject(Router);
+  private readonly injector = inject(Injector);
+
+  constructor() {
+    // get current room and user info
     const currentRoom = this.roomService.getCurrentRoom();
     this.currentRoomId = currentRoom?.key || '';
 
@@ -68,31 +91,29 @@ export class GameDashboard implements OnInit, OnDestroy {
     this.currentUserId = currentUser?.id?.toString() || '';
   }
 
-  // -------------------- Lifecycle --------------------
-
-  ngOnInit() {
+  ngOnInit(): void {
     this.startCountdown();
     this.listenForParagraph();
     this.startProgressEmitter();
 
-    // Listen for all players finished event
-    this.socket.on('all-players-finished', (data: IAllPlayersFinished) => {
+    // when all players are done
+    this.socket.on('all-players-finished', () => {
       this.isWaitingForOthers = true;
       this.startRedirectCountdown();
     });
 
-    // Listen for redirect to leaderboard (if you add this event)
-    this.socket.on('redirect-to-leaderboard', (data: IRedirectToLeaderboard) => {
+    // redirect to leaderboard event
+    this.socket.on('redirect-to-leaderboard', (data: ILeaderboardData) => {
       this.redirectToLeaderboard(data.roomId, data.finalResults);
     });
 
-    // Listen for individual player completion
-    this.socket.on('player-finished', (data: IPlayerFinished) => {
+    // when a player finishes
+    this.socket.on('player-finished', () => {
       this.isWaitingForOthers = true;
     });
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.socket.off('paragraph-ready');
     this.socket.off('all-players-finished');
     this.socket.off('redirect-to-leaderboard');
@@ -105,25 +126,27 @@ export class GameDashboard implements OnInit, OnDestroy {
     this.subscription.forEach((sub) => sub.unsubscribe());
   }
 
-  private startRedirectCountdown() {
-    this.redirectCountdown = 5;
+  private startRedirectCountdown(): void {
+    this.redirectCountdown.set(5);
     const countdownInterval = setInterval(() => {
-      this.redirectCountdown--;
+      this.ngZone.run(() => {
+        this.redirectCountdown.update((count) => count - 1);
 
-      if (this.redirectCountdown <= 0) {
-        clearInterval(countdownInterval);
-        // Auto-redirect when countdown reaches 0
-        this.router.navigate(['/leaderboard'], {
-          queryParams: {
-            roomId: this.currentRoomId,
-          },
-        });
-      }
+        if (this.redirectCountdown() <= 0) {
+          clearInterval(countdownInterval);
+          // go to leaderboard when timer ends
+          this.router.navigate(['/leaderboard'], {
+            queryParams: {
+              roomId: this.currentRoomId,
+            },
+          });
+        }
+      });
     }, 1000);
   }
 
-  private redirectToLeaderboard(roomId: string, results: IPlayerData[]) {
-    //navigate to leaderboard with results
+  private redirectToLeaderboard(roomId: string, results: IPlayerData[]): void {
+    // go to leaderboard with results
     this.router.navigate(['/leaderboard'], {
       queryParams: {
         roomId: roomId,
@@ -131,8 +154,6 @@ export class GameDashboard implements OnInit, OnDestroy {
       },
     });
   }
-
-  // -------------------- Countdown --------------------
 
   startCountdown(): void {
     const timer = setInterval(() => {
@@ -146,33 +167,31 @@ export class GameDashboard implements OnInit, OnDestroy {
     }, 1000);
   }
 
-  // -------------------- Paragraph --------------------
-
   private listenForParagraph(): void {
     this.socket.on('paragraph-ready', (data: IParagraphReady) => {
       const cleanParagraph = data.paragraph.trim().replace(/\s+/g, ' ');
 
       const words: IWordState[] = cleanParagraph.split(' ').map((word: string, i: number) => ({
         word,
-        state: (i === 0 ? 'active' : 'pending') as WordState,
+        state: i === 0 ? 'active' : 'pending',
         chars: word.split('').map((c: string) => ({
           char: c,
-          state: 'pending' as CharState,
-        })) as ICharacterState[],
+          state: 'pending',
+        })),
       }));
 
       this.wordStates.set(words);
       this.paragraphLoaded.set(true);
       this.gameStarted.set(true);
 
-      setTimeout(() => {
-        this.typingInput?.nativeElement.focus();
-        this.typingInput.nativeElement.value = '';
-      }, 100);
+      runInInjectionContext(this.injector, () => {
+        afterNextRender(() => {
+          this.typingInput?.nativeElement.focus();
+          this.typingInput.nativeElement.value = '';
+        });
+      });
     });
   }
-
-  // -------------------- Typing --------------------
 
   onInput(event: Event): void {
     if (this.isFinished()) return;
@@ -227,8 +246,6 @@ export class GameDashboard implements OnInit, OnDestroy {
     }
   }
 
-  // -------------------- Progress --------------------
-
   private startProgressEmitter(): void {
     this.progressEmitTimer = setInterval(() => {
       if (this.gameStarted() && !this.isFinished() && this.startTime()) {
@@ -256,8 +273,6 @@ export class GameDashboard implements OnInit, OnDestroy {
 
     this.socket.handleLiveProgress(roomId, progress, wpm, accuracy);
   }
-
-  // -------------------- Completion --------------------
 
   private handleCompletion(): void {
     this.isFinished.set(true);

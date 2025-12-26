@@ -65,16 +65,18 @@
   <div class="modal-content rooms-list">
     <div class="rooms-intro">Select a room to join — tap Join on the right.</div>
 
-    <div *ngFor="let room of rooms$ | async; trackBy: trackByRoomId" class="room-card">
-      <div class="room-info">
-        <p class="room-name">{{ room.data.roomName }}</p>
-        <p class="room-id">
-          ID: <span>{{ room.key }}</span>
-        </p>
-      </div>
+    @for (room of rooms$ | async; track trackByRoomId($index, room)) {
+      <div class="room-card">
+        <div class="room-info">
+          <p class="room-name">{{ room.data.roomName }}</p>
+          <p class="room-id">
+            ID: <span>{{ room.key }}</span>
+          </p>
+        </div>
 
-      <button class="room-join-btn" (click)="handleJoinRoom(room)">Join</button>
-    </div>
+        <button class="room-join-btn" (click)="handleJoinRoom(room)">Join</button>
+      </div>
+    }
   </div>
 </app-modal>
 

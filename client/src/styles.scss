@@ -1,0 +1,15 @@
+/* You can add global styles to this file, and also import other style files */
+
+@use './app/styles/variables.scss';
+@use './app/styles/colors.scss';
+@use './app/styles/typography.scss';
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family-sans);
+}

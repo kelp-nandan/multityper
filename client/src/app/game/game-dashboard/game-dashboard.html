@@ -21,13 +21,7 @@
           <div class="stats-grid">
             <div class="stat-item">
               <span class="label">Accuracy</span>
-              <span class="value">
-                {{
-                  correctCount() + totalErrors() > 0
-                    ? ((correctCount() / (correctCount() + totalErrors())) * 100 | number: '1.0-0')
-                    : 0
-                }}%
-              </span>
+              <span class="value">{{ accuracy() }}%</span>
             </div>
 
             <div class="stat-item">
@@ -46,9 +40,9 @@
             </div>
           </div>
 
-          @if (isWaitingForOthers && redirectCountdown > 0) {
+          @if (isWaitingForOthers && redirectCountdown() > 0) {
             <p class="wait-text">
-              Redirecting to leaderboard in {{ redirectCountdown }} seconds...
+              Redirecting to leaderboard in {{ redirectCountdown() }} seconds...
             </p>
           } @else if (isWaitingForOthers) {
             <p class="wait-text">Waiting for other players to finish...</p>
@@ -61,7 +55,7 @@
 
     <div class="typing-container">
       <div class="stanza-box">
-        <div class="character-wrapper">
+        <div class="character-wrapper font-mono">
           @for (word of wordStates(); track $index) {
             <span
               class="word"
@@ -73,9 +67,8 @@
                 <span class="char" [class]="char.state">
                   {{ char.char }}
                 </span>
-              }
-            </span>
-            <span class="space"> </span>
+              }</span
+            >&nbsp;
           }
         </div>
       </div>
@@ -93,5 +86,5 @@
       </div>
     </div>
   </div>
-  <app-liveprogress></app-liveprogress>
+  <app-live-progress></app-live-progress>
 </div>

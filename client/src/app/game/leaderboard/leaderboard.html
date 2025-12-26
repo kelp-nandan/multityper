@@ -13,14 +13,16 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let player of players; let i = index">
-        <td>{{ i + 1 }}</td>
-        <td>{{ player.username }}</td>
-        <td>{{ player.wmp }}</td>
-        <td>{{ player.accuracy }}%</td>
-        <td>{{ player.time }}</td>
-        <td>{{ player.Total_Wrong }}</td>
-      </tr>
+      @for (player of players; track $index) {
+        <tr>
+          <td>{{ $index + 1 }}</td>
+          <td>{{ player.username }}</td>
+          <td>{{ player.wpm }}</td>
+          <td>{{ player.accuracy }}%</td>
+          <td>{{ player.time }}</td>
+          <td>{{ player.totalWrong }}</td>
+        </tr>
+      }
     </tbody>
   </table>
 

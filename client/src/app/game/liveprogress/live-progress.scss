@@ -1,5 +1,4 @@
-@use '../../styles/colors.scss' as colors;
-
+// Live Progress Styles
 
 .live-progress-container {
   width: 80%;
@@ -20,7 +19,6 @@
   .live-progress-inside-container {
     margin-bottom: var(--spacing-20);
 
-
     .player-header {
       display: flex;
       justify-content: space-between;
@@ -30,7 +28,7 @@
       .player-name {
         margin: 0;
         font-size: var(--font-size-16);
-        font-weight: 600;
+        font-weight: var(--font-weight-600);
         color: var(--white);
       }
 
@@ -42,7 +40,7 @@
           padding: var(--spacing-4) var(--spacing-12);
           border-radius: var(--radius-12);
           font-size: var(--font-size-12);
-          font-weight: 600;
+          font-weight: var(--font-weight-600);
 
           &.wpm {
             background: linear-gradient(90deg, #667eea, #764ba2);
@@ -69,9 +67,7 @@
       .completed-progress {
         height: 100%;
         border-radius: var(--radius-16);
-        background: linear-gradient(90deg,
-            #4facfe,
-            var(--primary-gradient-start));
+        background: linear-gradient(90deg, #4facfe, var(--primary-gradient-start));
         transition: width 0.4s ease;
       }
 
@@ -88,7 +84,7 @@
         justify-content: center;
 
         font-size: var(--font-size-14);
-        font-weight: 700;
+        font-weight: var(--font-weight-700);
         color: var(--primary-gradient-start);
 
         background: var(--white);
@@ -106,7 +102,7 @@
         transform: translateY(-50%);
 
         font-size: var(--font-size-12);
-        font-weight: 600;
+        font-weight: var(--font-weight-600);
         color: var(--white);
       }
     }

@@ -12,13 +12,15 @@ export interface IPlayer {
   };
 }
 
-export interface IGetRooms {
+export interface IRoomData {
+  roomName: string;
+  players: IPlayer[];
+  gameStarted: boolean;
+}
+
+export interface IFetchRooms {
   key: string;
-  data: {
-    roomName: string;
-    players: IPlayer[];
-    gameStarted: boolean;
-  };
+  data: IRoomData;
 }
 
 export interface IPlayerStats {

@@ -2,7 +2,7 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    // Create users table with raw SQL for better control
+    // users table
     await queryInterface.sequelize.query(`
       CREATE TABLE users (
         id SERIAL PRIMARY KEY,
@@ -14,14 +14,14 @@ module.exports = {
         created_by INTEGER REFERENCES users(id),
         updated_by INTEGER REFERENCES users(id)
       );
-    `);
+    );
 
-    // Add indexes for better performance
+    // index on email
     await queryInterface.sequelize.query(`
       CREATE INDEX idx_users_email ON users(email);
-    `);
+    );
 
-    // Add trigger to auto-update updated_at column
+    // auto-update timestamp trigger
     await queryInterface.sequelize.query(`
       CREATE OR REPLACE FUNCTION update_updated_at_column()
       RETURNS TRIGGER AS $$

@@ -18,13 +18,13 @@ export interface IWordState {
 export type WordState = 'pending' | 'active' | 'completed';
 export type CharState = 'pending' | 'correct' | 'incorrect';
 
-export interface IAllPlayersFinished {
+export interface IGameCompletionData {
   message: string;
   roomId: string;
   players: IPlayerData[];
 }
 
-export interface IRedirectToLeaderboard {
+export interface ILeaderboardData {
   roomId: string;
   finalResults: IPlayerData[];
 }
@@ -34,18 +34,20 @@ export interface IPlayerFinished {
   waitingCount: number;
 }
 
+export interface IPlayerStats {
+  wpm?: number;
+  accuracy?: number;
+  totalMistakes?: number;
+  timeTakenSeconds?: number;
+  progress?: number;
+  finished?: boolean;
+}
+
 export interface IPlayerData {
   userId: number;
   userName: string;
   isCreated: boolean;
-  stats?: {
-    wpm?: number;
-    accuracy?: number;
-    totalMistakes?: number;
-    timeTakenSeconds?: number;
-    progress?: number;
-    finished?: boolean;
-  };
+  stats?: IPlayerStats;
 }
 
 export interface ILeaderboardPlayer {
@@ -58,24 +60,10 @@ export interface ILeaderboardPlayer {
   rank: number;
 }
 
-export interface ISequelizeUser {
-  dataValues?: {
-    id: number;
-    name: string;
-    email: string;
-    password: string;
-    createdAt: Date;
-    updatedAt: Date;
-  };
-  id?: number;
-  name?: string;
-  email?: string;
-}
-
 export interface ILeaderboardDisplay {
   username: string;
-  wmp: number;
+  wpm: number;
   accuracy: number;
   time: number;
-  Total_Wrong: number;
+  totalWrong: number;
 }

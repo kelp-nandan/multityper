@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
+import { inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from '../identity/services/auth.service';
-import { IRoom, ISequelizeUser, IUser } from '../interfaces';
+import { IRoom } from '../interfaces/room.interface';
+import { IUser } from '../interfaces/auth.interfaces';
 import { Modal } from '../modal/modal';
 import { RoomService } from '../services/room.service';
 import { SocketService } from '../services/socket.service';
@@ -15,18 +17,8 @@ import { SocketService } from '../services/socket.service';
   templateUrl: './homepage.html',
   styleUrls: ['./homepage.scss'],
 })
-export class Homepage implements OnInit {
+export class HomePage implements OnInit {
   rooms$!: Observable<IRoom[]>;
-
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private socketService: SocketService,
-    private roomService: RoomService,
-  ) {
-    this.rooms$ = this.roomService.rooms$;
-  }
-
   user = signal<IUser | null>(null);
   showDetails = signal(false);
   isLoading = signal(false);
@@ -34,7 +26,16 @@ export class Homepage implements OnInit {
   showCreateModal = signal(false);
   roomName = signal<string>('');
 
-  ngOnInit() {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly socketService = inject(SocketService);
+  private readonly roomService = inject(RoomService);
+
+  constructor() {
+    this.rooms$ = this.roomService.rooms$;
+  }
+
+  ngOnInit(): void {
     if (!this.authService.isAuthenticated()) {
       this.router.navigate(['/login']);
       return;
@@ -42,64 +43,62 @@ export class Homepage implements OnInit {
 
     const currentUser = this.authService.currentUser();
     if (currentUser) {
-      const cleanUser = (currentUser as ISequelizeUser)?.dataValues || currentUser;
+      const cleanUser = currentUser;
       this.user.set(cleanUser);
     } else {
       this.fetchUserProfile();
     }
   }
 
-  trackByRoomId(index: number, room: IRoom) {
+  trackByRoomId(index: number, room: IRoom): string {
     return room.key;
   }
 
-  joinRoomModal() {
+  joinRoomModal(): void {
     this.showJoinModal.set(true);
   }
 
-  createRoomModal() {
+  createRoomModal(): void {
     this.showCreateModal.set(true);
   }
 
-  handleJoinClose() {
+  handleJoinClose(): void {
     this.showJoinModal.set(false);
   }
 
-  handleCreateClose() {
+  handleCreateClose(): void {
     this.showCreateModal.set(false);
   }
 
-  handleCreateConfirm() {
+  handleCreateConfirm(): void {
     this.socketService.handleCreateRoom({ roomName: this.roomName() });
     this.showCreateModal.set(false);
     this.roomName.set('');
   }
 
-  handleJoinRoom(room: IRoom) {
+  handleJoinRoom(room: IRoom): void {
     this.showJoinModal.set(false);
     this.socketService.handleJoinRoom(room.key);
   }
 
-  fetchUserProfile() {
+  fetchUserProfile(): void {
     this.isLoading.set(true);
     this.authService.getUserProfile().subscribe({
       next: (response) => {
         this.isLoading.set(false);
         if (response.data.user) {
-          const cleanUser =
-            (response.data.user as ISequelizeUser)?.dataValues || response.data.user;
+          const cleanUser = response.data.user;
           this.user.set(cleanUser);
         }
       },
-      error: (error) => {
+      error: () => {
         this.isLoading.set(false);
-        console.error('Error fetching user profile:', error);
         this.authService.logout();
       },
     });
   }
 
-  onLogout() {
+  onLogout(): void {
     if (confirm('Are you sure you want to logout?')) this.authService.logout();
   }
 }

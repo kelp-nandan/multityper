@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { JwtModule, JwtModuleOptions } from "@nestjs/jwt";
+import { JwtModule } from "@nestjs/jwt";
 import { DatabaseModule } from "src/database/database.module";
 import { UsersController } from "./users.controller";
 import { UsersService } from "./users.service";
@@ -10,12 +10,12 @@ import { UsersService } from "./users.service";
     DatabaseModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService): JwtModuleOptions => {
+      useFactory: (configService: ConfigService) => {
         return {
           secret: configService.get<string>("jwt.secret"),
           signOptions: {
-            expiresIn: configService.get<string>("jwt.expiresIn") || "15m",
-          } as any,
+            expiresIn: "15m",
+          },
         };
       },
       inject: [ConfigService],
@@ -25,4 +25,4 @@ import { UsersService } from "./users.service";
   providers: [UsersService],
   exports: [UsersService],
 })
-export class UsersModule { }
+export class UsersModule {}

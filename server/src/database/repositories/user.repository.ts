@@ -52,7 +52,7 @@ export class UserRepository {
       password: userData.password,
     });
 
-    // Update created_by and updated_by to user's own ID after creation
+    // set created_by and updated_by to self
     await user.update({
       created_by: user.id,
       updated_by: user.id,

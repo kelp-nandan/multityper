@@ -1,6 +1,4 @@
-@use '../../styles/colors.scss' as *;
-@use '../../styles/typography.scss' as *;
-@use '../../styles/variables.scss' as *;
+// Login Styles
 
 .auth-container {
   min-height: 100vh;
@@ -9,7 +7,6 @@
   justify-content: center;
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   padding: var(--spacing-20);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   .auth-card {
     width: 100%;
@@ -17,7 +14,9 @@
     padding: var(--spacing-40);
     border-radius: var(--radius-16);
     background: var(--white);
-    box-shadow: 0 25px 50px -12px var(--black-alpha-30), 0 25px 25px -5px var(--black-alpha-10);
+    box-shadow:
+      0 25px 50px -12px var(--black-alpha-30),
+      0 25px 25px -5px var(--black-alpha-10);
     animation: slideIn 0.4s ease-out;
 
     /* ---------- HEADER ---------- */
@@ -50,13 +49,13 @@
       &.alert-success {
         background: var(--success-bg);
         color: var(--success-text);
-        border: 1px solid var(--success);
+        border: var(--spacing-2) solid var(--success);
       }
 
       &.alert-error {
         background: var(--error-bg);
         color: var(--error-text);
-        border: 1px solid var(--error);
+        border: var(--spacing-2) solid var(--error);
       }
     }
 
@@ -80,7 +79,7 @@
           padding: var(--spacing-12) var(--spacing-16);
           font-size: var(--font-size-16);
           border-radius: var(--radius-8);
-          border: 2px solid var(--input-border);
+          border: var(--spacing-2) solid var(--input-border);
           background: var(--white);
           transition: var(--transition-smooth);
           outline: none;
@@ -136,7 +135,9 @@
 
           &:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px var(--black-alpha-10), 0 4px 6px -4px var(--black-alpha-05);
+            box-shadow:
+              0 10px 15px -3px var(--black-alpha-10),
+              0 4px 6px -4px var(--black-alpha-05);
           }
 
           &:focus {
@@ -152,11 +153,11 @@
       }
 
       .spinner {
-        width: 1rem;
-        height: 1rem;
+        width: var(--spacing-16);
+        height: var(--spacing-16);
         border-radius: 50%;
-        border: 0.125rem solid transparent;
-        border-top: 0.125rem solid currentColor;
+        border: var(--spacing-2) solid transparent;
+        border-top: var(--spacing-2) solid currentColor;
         animation: spin 1s linear infinite;
       }
     }
@@ -165,7 +166,7 @@
     .auth-toggle {
       text-align: center;
       padding-top: var(--spacing-20);
-      border-top: 1px solid var(--toggle-border);
+      border-top: var(--spacing-2) solid var(--toggle-border);
 
       p {
         font-size: var(--font-size-14);

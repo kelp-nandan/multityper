@@ -1,180 +1,80 @@
+@use 'sass:math';
+
 $base-font-size: 16px;
 
 @function rem($px) {
-    @return ($px / $base-font-size) * 1rem;
+  @return math.div($px, $base-font-size) * 1rem;
 }
 
 :root {
-    // Colors
-    --primary: #6366f1;
-    --primary-dark: #5855eb;
-    --primary-gradient-start: #667eea;
-    --primary-gradient-end: #764ba2;
-    --white: #fff;
-    --black: #000;
-    --text-dark: #2b2b2b;
-    --text-light: #666;
-    --text-mute: #444;
-    --text-gray: #333;
-    --text-lighter: #555;
-    --light-gray-text: #e0e0e0;
-    --bg-light: #f9f9f9;
-    --bg-lighter: #f0f0f0;
-    --light-gray: #f7f7ff;
-    --border-gray: #d0d0d0;
-    --light-border: #e0e0e0;
-    --success: #10b981;
-    --success-bg: #d1fae5;
-    --success-border: #a7f3d0;
-    --success-text: #065f46;
-    --error: #ef4444;
-    --error-bg: #fee2e2;
-    --error-border: #fca5a5;
-    --error-text: #dc2626;
-    --correct-text: #4caf50;
-    --incorrect-text: #ff5252;
-    --input-border: #d1d5db;
-    --input-focus-shadow: #6366f11a;
-    --input-error-shadow: #ef44441a;
-    --input-placeholder: #9ca3af;
-    --header: #1f2937;
-    --label: #374151;
-    --toggle-border: #e5e7eb;
-    --text-muted: #6b7280;
-    --bg-very-light: #f8f9fa;
-    --bg-light-gray: #f1f1f1;
-    --border-light: #eee;
-    --purple-primary: #6200ee;
-    --purple-dark: #3700b3;
+  // Spacing (margin & padding)
+  --spacing-2: #{rem(2px)};
+  --spacing-4: #{rem(4px)};
+  --spacing-6: #{rem(6px)};
+  --spacing-8: #{rem(8px)};
+  --spacing-10: #{rem(10px)};
+  --spacing-12: #{rem(12px)};
+  --spacing-14: #{rem(14px)};
+  --spacing-16: #{rem(16px)};
+  --spacing-18: #{rem(18px)};
+  --spacing-20: #{rem(20px)};
+  --spacing-24: #{rem(24px)};
+  --spacing-28: #{rem(28px)};
+  --spacing-32: #{rem(32px)};
+  --spacing-40: #{rem(40px)};
+  --spacing-48: #{rem(48px)};
+  --spacing-56: #{rem(56px)};
+  --spacing-64: #{rem(64px)};
 
-    // Alpha/Transparency Colors
-    --black-alpha-70: #000000b3;
-    --black-alpha-80: #000000cc;
-    --black-alpha-30: #0000004d;
-    --black-alpha-10: #0000001a;
-    --black-alpha-04: #0000000a;
-    --black-alpha-05: #00000005;
-    --black-alpha-50: #00000080;
-    --white-alpha-90: #ffffffe6;
-    --white-alpha-95: #fffffff2;
-    --white-alpha-60: #ffffff99;
-    --white-alpha-50: #ffffff80;
-    --white-alpha-40: #ffffff40;
-    --white-alpha-33: #ffffff4d;
-    --white-alpha-20: #ffffff33;
-    --white-alpha-10: #ffffff1a;
-    --white-alpha-08: #ffffff14;
-    --primary-alpha-30: #667eea4d;
-    --primary-alpha-25: #667eea40;
-    --primary-alpha-18: #667eea2e;
-    --primary-alpha-15: #667eea26;
-    --primary-alpha-12: #667eea1f;
-    --primary-alpha-08: #667eea14;
-    --primary-end-alpha-08: #764ba214;
-    --gold-alpha-20: #ffd70033;
-    --gold-alpha-40: #ffd70066;
-    --gray-alpha-12: #2425261f;
+  // Border Radius
+  --radius-2: #{rem(2px)};
+  --radius-4: #{rem(4px)};
+  --radius-6: #{rem(6px)};
+  --radius-8: #{rem(8px)};
+  --radius-10: #{rem(10px)};
+  --radius-12: #{rem(12px)};
+  --radius-16: #{rem(16px)};
+  --radius-20: #{rem(20px)};
+  --radius-24: #{rem(24px)};
 
-    // Gradients
-    --primary-gradient: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+  // Sizes (Widths/Heights)
+  --size-16: #{rem(16px)};
+  --size-20: #{rem(20px)};
+  --size-24: #{rem(24px)};
+  --size-32: #{rem(32px)};
+  --size-40: #{rem(40px)};
+  --size-48: #{rem(48px)};
+  --size-56: #{rem(56px)};
+  --size-64: #{rem(64px)};
+  --size-80: #{rem(80px)};
+  --size-96: #{rem(96px)};
+  --size-128: #{rem(128px)};
+  --size-160: #{rem(160px)};
+  --size-192: #{rem(192px)};
+  --size-256: #{rem(256px)};
+  --size-320: #{rem(320px)};
+  --size-480: #{rem(480px)};
+  --size-640: #{rem(640px)};
+  --size-960: #{rem(960px)};
 
-    // Font sizes
-    --font-size-10: #{rem(10px)};
-    --font-size-12: #{rem(12px)};
-    --font-size-14: #{rem(14px)};
-    --font-size-16: #{rem(16px)};
-    --font-size-18: #{rem(18px)};
-    --font-size-20: #{rem(20px)};
-    --font-size-24: #{rem(24px)};
-    --font-size-28: #{rem(28px)};
-    --font-size-32: #{rem(32px)};
-    --font-size-40: #{rem(40px)};
-    --font-size-48: #{rem(48px)};
-    --font-size-64: #{rem(64px)};
-    --font-size-80: #{rem(80px)};
-    --font-size-96: #{rem(96px)};
-    --font-size-128: #{rem(128px)};
+  // Shadows
+  --shadow-blur-4: #{rem(4px)};
+  --shadow-blur-8: #{rem(8px)};
+  --shadow-blur-10: #{rem(10px)};
+  --shadow-blur-16: #{rem(16px)};
+  --shadow-blur-20: #{rem(20px)};
+  --shadow-blur-32: #{rem(32px)};
 
-    // Spacing (margin & padding)
-    --spacing-2: #{rem(2px)};
-    --spacing-4: #{rem(4px)};
-    --spacing-6: #{rem(6px)};
-    --spacing-8: #{rem(8px)};
-    --spacing-10: #{rem(10px)};
-    --spacing-12: #{rem(12px)};
-    --spacing-14: #{rem(14px)};
-    --spacing-16: #{rem(16px)};
-    --spacing-18: #{rem(18px)};
-    --spacing-20: #{rem(20px)};
-    --spacing-24: #{rem(24px)};
-    --spacing-28: #{rem(28px)};
-    --spacing-32: #{rem(32px)};
-    --spacing-40: #{rem(40px)};
-    --spacing-48: #{rem(48px)};
-    --spacing-56: #{rem(56px)};
-    --spacing-64: #{rem(64px)};
+  // Z-index (Stacking Priority)
+  --z-index-base: 1;
+  --z-index-dropdown: 2;
+  --z-index-sticky: 3;
+  --z-index-fixed: 4;
+  --z-index-overlay: 5;
+  --z-index-modal: 6;
+  --z-index-tooltip: 7;
 
-    // Border radius
-    --radius-2: #{rem(2px)};
-    --radius-4: #{rem(4px)};
-    --radius-6: #{rem(6px)};
-    --radius-8: #{rem(8px)};
-    --radius-10: #{rem(10px)};
-    --radius-12: #{rem(12px)};
-    --radius-16: #{rem(16px)};
-    --radius-20: #{rem(20px)};
-    --radius-24: #{rem(24px)};
-
-    // Line heights
-    --line-height-16: #{rem(16px)};
-    --line-height-20: #{rem(20px)};
-    --line-height-24: #{rem(24px)};
-    --line-height-28: #{rem(28px)};
-    --line-height-32: #{rem(32px)};
-    --line-height-36: #{rem(36px)};
-    --line-height-40: #{rem(40px)};
-    --line-height-44: #{rem(44px)};
-
-    // Widths/Heights
-    --size-16: #{rem(16px)};
-    --size-20: #{rem(20px)};
-    --size-24: #{rem(24px)};
-    --size-32: #{rem(32px)};
-    --size-40: #{rem(40px)};
-    --size-48: #{rem(48px)};
-    --size-56: #{rem(56px)};
-    --size-64: #{rem(64px)};
-    --size-80: #{rem(80px)};
-    --size-96: #{rem(96px)};
-    --size-128: #{rem(128px)};
-    --size-160: #{rem(160px)};
-    --size-192: #{rem(192px)};
-    --size-256: #{rem(256px)};
-    --size-320: #{rem(320px)};
-    --size-480: #{rem(480px)};
-    --size-640: #{rem(640px)};
-    --size-960: #{rem(960px)};
-
-    // Shadows
-    --shadow-blur-4: #{rem(4px)};
-    --shadow-blur-8: #{rem(8px)};
-    --shadow-blur-10: #{rem(10px)};
-    --shadow-blur-16: #{rem(16px)};
-    --shadow-blur-20: #{rem(20px)};
-    --shadow-blur-32: #{rem(32px)};
-
-    // Transitions
-    --transition-smooth: all 0.2s ease;
-    --transition-transform: transform 0.2s ease;
-
-    // Font weights
-    --font-weight-100: 100;
-    --font-weight-200: 200;
-    --font-weight-300: 300;
-    --font-weight-400: 400;
-    --font-weight-500: 500;
-    --font-weight-600: 600;
-    --font-weight-700: 700;
-    --font-weight-800: 800;
-    --font-weight-900: 900;
+  // Transitions
+  --transition-smooth: all 0.2s ease;
+  --transition-transform: transform 0.2s ease;
 }

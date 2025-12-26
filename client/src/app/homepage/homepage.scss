@@ -1,5 +1,4 @@
-@use '../styles/colors' as *;
-@use '../styles/typography' as *;
+// Homepage Styles
 
 .dashboard-container {
   background: var(--primary-gradient);
@@ -18,7 +17,7 @@
     border-radius: var(--radius-8);
     padding: var(--spacing-10) var(--spacing-16);
     color: var(--primary-gradient-end);
-    font-weight: 600;
+    font-weight: var(--font-weight-600);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -26,7 +25,7 @@
     font-size: var(--font-size-14);
     transition: var(--transition-smooth);
     backdrop-filter: blur(var(--shadow-blur-10));
-    z-index: 1000;
+    z-index: var(--z-index-fixed);
 
     &:hover {
       background: var(--white);
@@ -92,7 +91,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
+      font-weight: var(--font-weight-700);
       font-size: var(--font-size-24);
       box-shadow: 0 var(--spacing-6) var(--spacing-18) var(--primary-alpha-18);
     }
@@ -100,7 +99,7 @@
 
   .user-info {
     .user-name {
-      font-weight: 700;
+      font-weight: var(--font-weight-700);
       color: var(--text-dark);
     }
 
@@ -121,7 +120,7 @@
       padding: var(--spacing-10) var(--spacing-14);
       border-radius: var(--radius-8);
       cursor: pointer;
-      font-weight: 600;
+      font-weight: var(--font-weight-600);
       transition: var(--transition-transform);
 
       &:hover {
@@ -134,6 +133,7 @@
       border-radius: var(--radius-10);
       color: var(--white);
       background-color: var(--primary-gradient-start);
+      border: none;
       cursor: pointer;
       transition: var(--transition-transform);
 
@@ -159,7 +159,7 @@
 
     .stat-value {
       font-size: var(--font-size-24);
-      font-weight: 700;
+      font-weight: var(--font-weight-700);
       color: var(--primary-gradient-start);
     }
 
@@ -207,7 +207,7 @@
           color: var(--text-gray);
 
           &.room-id {
-            font-weight: 500;
+            font-weight: var(--font-weight-500);
             color: var(--primary-gradient-start);
           }
 
@@ -225,7 +225,7 @@
         border-radius: var(--radius-4);
         cursor: pointer;
         font-size: var(--font-size-14);
-        font-weight: 500;
+        font-weight: var(--font-weight-500);
         transition: var(--transition-smooth);
         white-space: nowrap;
         margin-left: var(--spacing-10);
@@ -248,7 +248,7 @@
       display: block;
       margin-bottom: var(--spacing-6);
       color: var(--text-gray);
-      font-weight: 600;
+      font-weight: var(--font-weight-600);
     }
 
     .modal-input {
@@ -276,4 +276,60 @@
   display: flex;
   gap: var(--spacing-20);
   margin-top: var(--spacing-20);
+}
+
+// Modal content styles (content projected into modal component)
+.rooms-list {
+  .rooms-intro {
+    font-size: var(--font-size-14);
+    color: var(--muted-500);
+    margin-bottom: var(--spacing-10);
+  }
+
+  .room-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-14) var(--spacing-16);
+    border-radius: var(--radius-10);
+    background: linear-gradient(180deg, var(--white), var(--light-gray));
+    border: var(--spacing-2) solid var(--primary-alpha-08);
+
+    .room-name {
+      font-size: var(--font-size-18);
+      font-weight: var(--font-weight-800);
+      color: var(--primary-700);
+      margin: 0 0 var(--spacing-6) 0;
+    }
+
+    .room-id {
+      font-size: var(--font-size-16);
+      font-weight: var(--font-weight-600);
+      color: var(--text-mute);
+      margin: 0;
+    }
+  }
+}
+
+.create-room {
+  label {
+    display: block;
+    margin-bottom: var(--spacing-6);
+    font-weight: var(--font-weight-600);
+    color: var(--text-gray);
+  }
+
+  .modal-input {
+    width: 100%;
+    padding: var(--spacing-12) var(--spacing-14);
+    border-radius: var(--radius-8);
+    border: var(--spacing-2) solid var(--primary-alpha-12);
+    box-shadow: inset 0 var(--spacing-2) 0 var(--black-alpha-05);
+  }
+
+  .hint {
+    margin-top: var(--spacing-8);
+    font-size: var(--font-size-14);
+    color: var(--text-light);
+  }
 }

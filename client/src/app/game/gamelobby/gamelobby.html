@@ -1,34 +1,36 @@
-<div class="lobby-container" *ngIf="room$ | async as room; else noRoom">
-  <h1 class="game-title">{{ room.data.roomName }}</h1>
+@if (room$ | async; as room) {
+  <div class="lobby-container">
+    <h1 class="game-title">{{ room.data.roomName }}</h1>
 
-  <p class="game-quote">“Speed is good, accuracy is better. Let's type our way to victory!”</p>
+    <p class="game-quote">“Speed is good, accuracy is better. Let's type our way to victory!”</p>
 
-  <div class="players-container">
-    <div *ngFor="let player of room.data.players" class="player-card">
-      <div class="player-info">
-        <span>User: {{ player.userName }}</span>
-        <span>Status: {{ player.isCreated ? 'Creator' : 'Joined' }}</span>
-      </div>
-      <div *ngIf="leaveBtnValidation(player)">
-        <button (click)="leaveRoom(room.key)" class="leave-room-btn">Leave Room</button>
-      </div>
-    </div>
-
-    <div class="players-footer">
-      <ng-container *ngIf="isCreator(); else waiting">
-        <button class="button-primary" (click)="startRace(room.key)">Start Game</button>
-        <button class="button-secondary" (click)="destroyRace(room.key)">Destroy Game</button>
-      </ng-container>
-
-      <ng-template #waiting>
-        <div class="waiting-message">
-          <p>Waiting for the host to start the game...</p>
+    <div class="players-container">
+      @for (player of room.data.players; track player.userId) {
+        <div class="player-card">
+          <div class="player-info">
+            <span>User: {{ player.userName }}</span>
+            <span>Status: {{ player.isCreated ? 'Creator' : 'Joined' }}</span>
+          </div>
+          @if (leaveBtnValidation(player)) {
+            <div>
+              <button (click)="leaveRoom(room.key)" class="leave-room-btn">Leave Room</button>
+            </div>
+          }
         </div>
-      </ng-template>
+      }
+
+      <div class="players-footer">
+        @if (isCreator()) {
+          <button class="button-primary" (click)="startRace(room.key)">Start Game</button>
+          <button class="button-secondary" (click)="destroyRace(room.key)">Destroy Game</button>
+        } @else {
+          <div class="waiting-message">
+            <p>Waiting for the host to start the game...</p>
+          </div>
+        }
+      </div>
     </div>
   </div>
-</div>
-
-<ng-template #noRoom>
+} @else {
   <p class="no-room-message">No room selected. Please join a room first.</p>
-</ng-template>
+}

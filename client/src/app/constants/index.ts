@@ -1,4 +1,5 @@
-export const SERVER_URL = 'http://localhost:3000';
+// API will be proxied to http://localhost:3000 via proxy.conf.json
+export const API_BASE_URL = '/api';
 
 // Time constants (in milliseconds)
 export const AUTH_CHECK_TIMEOUT = 3000;

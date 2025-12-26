@@ -21,4 +21,4 @@ const repositoryProviders = [
   providers: [...databaseProviders, ...repositoryProviders],
   exports: [UserRepository, ParagraphRepository, "SEQUELIZE"],
 })
-export class DatabaseModule { }
+export class DatabaseModule {}

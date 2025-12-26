@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
 
-import { Homepage } from './homepage/homepage';
+import { HomePage } from './homepage/homepage';
 import { authGuard } from './identity/guards/auth.guard';
 import { leaderboardGuard } from './identity/guards/leaderboard.guard';
 import { Login } from './identity/login/login';
-import { Leaderboard } from './game/leaderboard/leaderboard';
+import { LeaderBoard } from './game/leaderboard/leaderboard';
 
 export const routes: Routes = [
   {
@@ -20,25 +20,26 @@ export const routes: Routes = [
   {
     path: 'homepage',
     canActivate: [authGuard],
-    component: Homepage,
+    component: HomePage,
     data: { requiresAuth: true },
   },
   {
     path: 'rooms/:_id',
     canActivate: [authGuard],
-    loadComponent: () => import('./game/gamelobby/gamelobby').then((c) => c.Gamelobby),
+    loadComponent: () => import('./game/gamelobby/gamelobby').then((c) => c.GameLobby),
     data: { requiresAuth: true },
   },
   {
     path: 'game-dashboard',
     canActivate: [authGuard],
-    loadComponent: () => import('./game/game-dashboard/game-dashboard').then((c) => c.GameDashboard),
+    loadComponent: () =>
+      import('./game/game-dashboard/game-dashboard').then((c) => c.GameDashboard),
     data: { requiresAuth: true },
   },
   {
     path: 'leaderboard',
     canActivate: [leaderboardGuard],
-    component: Leaderboard,
+    component: LeaderBoard,
     data: { requiresAuth: true },
   },
   {

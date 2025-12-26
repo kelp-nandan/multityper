@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
@@ -20,12 +20,12 @@ export class Login {
   loginForm: FormGroup;
   registerForm: FormGroup;
 
-  constructor(
-    private fb: FormBuilder,
-    private http: HttpClient,
-    private router: Router,
-    private authService: AuthService,
-  ) {
+  private readonly fb = inject(FormBuilder);
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+
+  constructor() {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
@@ -38,12 +38,12 @@ export class Login {
     });
   }
 
-  toggleMode() {
+  toggleMode(): void {
     this.isLoginMode.set(!this.isLoginMode());
     this.clearMessages();
   }
 
-  onLogin() {
+  onLogin(): void {
     if (this.loginForm.valid) {
       this.isLoading.set(true);
       this.clearMessages();
@@ -70,7 +70,7 @@ export class Login {
     }
   }
 
-  onRegister() {
+  onRegister(): void {
     if (this.registerForm.valid) {
       this.isLoading.set(true);
       this.clearMessages();
@@ -92,7 +92,7 @@ export class Login {
     }
   }
 
-  private clearMessages() {
+  private clearMessages(): void {
     this.errorMessage.set('');
     this.successMessage.set('');
   }

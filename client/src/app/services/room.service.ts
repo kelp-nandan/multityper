@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-import { IRoom } from '../interfaces';
+import { IRoom } from '../interfaces/room.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -13,25 +13,25 @@ export class RoomService {
   private selectedRoomSubject = new BehaviorSubject<IRoom | null>(null);
   selectedRoom$: Observable<IRoom | null> = this.selectedRoomSubject.asObservable();
 
-  setRooms(rooms: IRoom[]) {
+  setRooms(rooms: IRoom[]): void {
     this.roomsSubject.next(rooms);
   }
 
-  addRoom(room: IRoom) {
+  addRoom(room: IRoom): void {
     const currentRooms = this.roomsSubject.value;
     this.roomsSubject.next([...currentRooms, room]);
   }
 
-  removeRoom(roomId: string) {
+  removeRoom(roomId: string): void {
     const filtered = this.roomsSubject.value.filter((room) => room.key !== roomId);
     this.roomsSubject.next(filtered);
   }
 
-  selectRoom(room: IRoom) {
+  selectRoom(room: IRoom): void {
     this.selectedRoomSubject.next(room);
   }
 
-  clearSelectRoom() {
+  clearSelectRoom(): void {
     this.selectedRoomSubject.next(null);
   }
 
@@ -39,7 +39,7 @@ export class RoomService {
     return this.selectedRoomSubject.value;
   }
 
-  updateRoom(updatedRoom: IRoom) {
+  updateRoom(updatedRoom: IRoom): void {
     const currentRooms = this.roomsSubject.value;
     const newRooms = currentRooms.map((room) =>
       room.key === updatedRoom.key ? { ...updatedRoom } : room,

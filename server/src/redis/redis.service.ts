@@ -1,44 +1,47 @@
-import { Injectable, OnModuleInit } from "@nestjs/common";
+import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { createClient, RedisClientType } from "redis";
-import { IGetRooms } from "src/interfaces/rooms.interface";
+import { IFetchRooms, IRoomData } from "src/interfaces/rooms.interface";
 
 @Injectable()
 export class RedisService implements OnModuleInit {
-  private client: RedisClientType;
+  private readonly logger = new Logger(RedisService.name);
+  private redisClient: RedisClientType;
 
-  async onModuleInit() {
-    this.client = createClient({
+  async onModuleInit(): Promise<void> {
+    this.redisClient = createClient({
       url: `redis://:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST || "localhost"}:${process.env.REDIS_PORT || 6379}`,
     });
 
-    await this.client.connect();
+    this.redisClient.on("error", err => {
+      this.logger.error("Redis Client Error:", err);
+    });
 
-    this.client.on("error", err => console.error("Redis Client Error", err));
+    await this.redisClient.connect();
   }
 
-  async onModuleDestroy() {
-    await this.client.quit();
+  async onModuleDestroy(): Promise<void> {
+    await this.redisClient.quit();
   }
 
-  async setRoom(room: IGetRooms) {
-    await this.client.set(room.key, JSON.stringify(room.data));
+  async setRoom(room: IFetchRooms): Promise<void> {
+    await this.redisClient.set(room.key, JSON.stringify(room.data));
   }
 
-  async getRoom(id: string) {
-    const data = await this.client.get(id);
+  async getRoom(id: string): Promise<IRoomData | null> {
+    const data = await this.redisClient.get(id);
     return data ? JSON.parse(data) : null;
   }
 
   async deleteRoom(id: string): Promise<void> {
-    await this.client.del(id);
+    await this.redisClient.del(id);
   }
 
-  async getAllRooms(): Promise<IGetRooms[]> {
-    const rooms: IGetRooms[] = [];
+  async getAllRooms(): Promise<IFetchRooms[]> {
+    const rooms: IFetchRooms[] = [];
     let cursor = "0";
 
     do {
-      const reply = await this.client.scan(cursor, {
+      const reply = await this.redisClient.scan(cursor, {
         MATCH: "*",
         COUNT: 100,
       });
@@ -47,11 +50,11 @@ export class RedisService implements OnModuleInit {
       const keys = reply.keys;
 
       if (keys.length > 0) {
-        const values = await this.client.mGet(keys);
+        const values = await this.redisClient.mGet(keys);
 
         values.forEach((value, index) => {
           if (value) {
-            const roomData: IGetRooms["data"] = JSON.parse(value);
+            const roomData: IFetchRooms["data"] = JSON.parse(value);
             rooms.push({
               key: keys[index],
               data: roomData,

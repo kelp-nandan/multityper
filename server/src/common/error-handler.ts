@@ -42,7 +42,7 @@ export class ErrorHandler {
       }
     }
 
-    // Additional check for legacy or variations not yet in the enum
+    // catch edge cases for duplicate emails
     if (errorMessage.includes("duplicate email") || errorMessage.includes("email already in use")) {
       throw new HttpException("Email already exists", HttpStatus.CONFLICT);
     }

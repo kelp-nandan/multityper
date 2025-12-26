@@ -1,12 +1,9 @@
-@use '../../styles/colors.scss' as *;
-@use '../../styles/typography.scss' as *;
+// Game Dashboard Styles
 
 //root
 .game-container {
   min-height: 100vh;
-  background: linear-gradient(135deg,
-      var(--primary-gradient-start),
-      var(--primary-gradient-end));
+  background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
   position: relative;
   overflow: hidden;
 
@@ -21,7 +18,7 @@
   .countdown-overlay {
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: var(--z-index-overlay);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -62,11 +59,11 @@
       transform: translateY(0);
     }
 
-    //completion 
+    //completion
     .completion-overlay {
       position: fixed;
       inset: 0;
-      z-index: 1000;
+      z-index: var(--z-index-overlay);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -122,7 +119,6 @@
         border-radius: var(--radius-12);
 
         .character-wrapper {
-          font-family: 'Courier New', monospace;
           font-size: var(--font-size-28);
           line-height: var(--line-height-44);
           color: var(--white-alpha-95);
