@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { JwtService } from "@nestjs/jwt";
 import { Socket } from "socket.io";
 import { UserRepository } from "src/database/repositories";
+import { IJwtPayload } from "../../interfaces";
 
 @Injectable()
 export class WsJwtGuard implements CanActivate {
@@ -29,7 +30,7 @@ export class WsJwtGuard implements CanActivate {
     }
 
     try {
-      const payload = this.jwtService.verify(token, {
+      const payload = this.jwtService.verify<IJwtPayload>(token, {
         secret: process.env.JWT_SECRET,
       });
 
@@ -41,7 +42,11 @@ export class WsJwtGuard implements CanActivate {
         throw new UnauthorizedException("User not found");
       }
 
-      client.data.user = {
+      // Type cast client to add user data property
+      const authenticatedClient = client as unknown as {
+        data: { user: { id: number; email: string; name: string } };
+      };
+      authenticatedClient.data.user = {
         id: payload.sub,
         email: payload.email,
         name: payload.name,

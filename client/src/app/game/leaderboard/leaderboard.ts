@@ -1,13 +1,12 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
-import { inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
 import confetti from 'canvas-confetti';
+import { Subscription } from 'rxjs';
 
 import { Router } from '@angular/router';
-import { ILeaderboardDisplay, IPlayerData } from '../../interfaces/socket.interfaces';
 import { CONFETTI_DURATION } from '../../constants';
+import { ILeaderboardDisplay, IPlayerData } from '../../interfaces/socket.interfaces';
 import { RoomService } from '../../services/room.service';
 
 @Component({

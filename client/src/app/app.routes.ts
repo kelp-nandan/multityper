@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
 
+import { LeaderBoard } from './game/leaderboard/leaderboard';
 import { HomePage } from './homepage/homepage';
 import { authGuard } from './identity/guards/auth.guard';
 import { leaderboardGuard } from './identity/guards/leaderboard.guard';
 import { Login } from './identity/login/login';
-import { LeaderBoard } from './game/leaderboard/leaderboard';
 
 export const routes: Routes = [
   {

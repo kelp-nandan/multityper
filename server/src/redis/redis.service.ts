@@ -29,7 +29,7 @@ export class RedisService implements OnModuleInit {
 
   async getRoom(id: string): Promise<IRoomData | null> {
     const data = await this.redisClient.get(id);
-    return data ? JSON.parse(data) : null;
+    return data ? (JSON.parse(data) as IRoomData) : null;
   }
 
   async deleteRoom(id: string): Promise<void> {
@@ -54,7 +54,7 @@ export class RedisService implements OnModuleInit {
 
         values.forEach((value, index) => {
           if (value) {
-            const roomData: IFetchRooms["data"] = JSON.parse(value);
+            const roomData = JSON.parse(value) as IRoomData;
             rooms.push({
               key: keys[index],
               data: roomData,

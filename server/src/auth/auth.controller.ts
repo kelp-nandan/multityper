@@ -5,8 +5,8 @@ import { ENV } from "../config/env.config";
 import { ACCESS_TOKEN_MAX_AGE, REFRESH_TOKEN_MAX_AGE } from "../constants";
 import { CreateUserDto } from "../users/dto/create-user.dto";
 import { LoginUserDto } from "../users/dto/login-user.dto";
-import { UsersService } from "../users/users.service";
 import { IUserProfile } from "../users/interfaces";
+import { UsersService } from "../users/users.service";
 
 @Controller("api/auth")
 export class AuthController {
@@ -39,8 +39,8 @@ export class AuthController {
         message: "User registered successfully",
         data: { user },
       };
-    } catch (error) {
-      ErrorHandler.handleError(error, "Registration failed");
+    } catch (_error) {
+      ErrorHandler.handleError(_error, "Registration failed");
     }
   }
 
@@ -70,28 +70,28 @@ export class AuthController {
         message: "Login successful",
         data: { user },
       };
-    } catch (error) {
-      ErrorHandler.handleError(error, "Login failed");
+    } catch (_error) {
+      ErrorHandler.handleError(_error, "Login failed");
     }
   }
 
   @Post("logout")
-  async logout(
+  logout(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<{ message: string }> {
+  ): { message: string } {
     try {
-      const refreshToken = request.cookies?.refresh_token;
+      const refreshToken = request.cookies?.refresh_token as string | undefined;
 
       if (refreshToken) {
-        await this.usersService.revokeRefreshToken(refreshToken);
+        this.usersService.revokeRefreshToken(refreshToken);
       }
 
       response.clearCookie("access_token");
       response.clearCookie("refresh_token");
 
       return { message: "Logged out successfully" };
-    } catch (error) {
+    } catch (_error) {
       response.clearCookie("access_token");
       response.clearCookie("refresh_token");
 

@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { UserRepository } from "../database/repositories";
+import { IJwtPayload, IRefreshTokenPayload } from "../interfaces/auth.interface";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { LoginUserDto } from "./dto/login-user.dto";
 import { IUserProfile } from "./interfaces";
@@ -94,7 +95,7 @@ export class UsersService {
   async refreshAccessToken(refreshToken: string): Promise<{ accessToken: string }> {
     try {
       // Verify the refresh token JWT
-      const decoded = this.jwtService.verify(refreshToken);
+      const decoded = this.jwtService.verify<IRefreshTokenPayload>(refreshToken);
 
       if (decoded.type !== "refresh") {
         throw new UnauthorizedException("Invalid refresh token");
@@ -107,7 +108,7 @@ export class UsersService {
       }
 
       // Generate new access token with fresh user data
-      const payload = {
+      const payload: IJwtPayload = {
         email: user.email,
         sub: user.id,
         userId: user.id,
@@ -116,14 +117,13 @@ export class UsersService {
       const accessToken = this.jwtService.sign(payload, { expiresIn: "15m" });
 
       return { accessToken };
-    } catch (error) {
+    } catch (_error) {
       throw new UnauthorizedException("Invalid or expired refresh token");
     }
   }
 
-  async revokeRefreshToken(refreshToken: string): Promise<void> {
-    // Stateless tokens expire naturally
-    return;
+  revokeRefreshToken(_refreshToken: string): void {
+    // Stateless tokens expire naturally - no action needed
   }
 
   async findAll(): Promise<IUserProfile[]> {

@@ -14,7 +14,7 @@ export class TokenController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ): Promise<{ message: string }> {
-    const refreshToken = request.cookies?.refresh_token;
+    const refreshToken = request.cookies?.refresh_token as string | undefined;
 
     if (!refreshToken) {
       throw new HttpException("Refresh token not found", HttpStatus.UNAUTHORIZED);

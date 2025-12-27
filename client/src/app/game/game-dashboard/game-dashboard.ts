@@ -1,36 +1,31 @@
 import { CommonModule } from '@angular/common';
 import {
+  afterNextRender,
   Component,
+  computed,
   ElementRef,
+  inject,
+  Injector,
   NgZone,
   OnDestroy,
   OnInit,
-  signal,
-  computed,
-  ViewChild,
-  inject,
-  Injector,
-  afterNextRender,
   runInInjectionContext,
+  signal,
+  ViewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../identity/services/auth.service';
-import { LiveProgress } from '../liveprogress/live-progress';
 import { RoomService } from '../../services/room.service';
 import { SocketService } from '../../services/socket.service';
+import { LiveProgress } from '../liveprogress/live-progress';
 
 import {
-  CharState,
-  IGameCompletionData,
-  ICharacterState,
+  ILeaderboardData,
   IParagraphReady,
   IPlayerData,
-  IPlayerFinished,
-  ILeaderboardData,
   IWordState,
-  WordState,
 } from '../../interfaces/socket.interfaces';
 
 @Component({

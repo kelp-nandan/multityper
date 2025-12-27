@@ -15,10 +15,20 @@ import { v4 as uuid4 } from "uuid";
 import { WsJwtGuard } from "../auth/guards/ws-jwt.guard";
 import { wsConfig } from "../config/wsConfig";
 import { MAX_PROGRESS, MIN_PROGRESS, REDIRECT_DELAY } from "../constants";
-import { IPlayerStats } from "../interfaces";
-import { IFetchRooms, IPlayer, IRoomData } from "../interfaces/rooms.interface";
+import { IPlayerStatsResponse } from "../interfaces";
+import { IPlayer } from "../interfaces/rooms.interface";
 import { ParagraphService } from "../paragraph/paragraph.service";
 import { RedisService } from "../redis/redis.service";
+
+interface IAuthenticatedSocket extends Socket {
+  data: {
+    user: {
+      id: number;
+      email: string;
+      name: string;
+    };
+  };
+}
 
 @WebSocketGateway(wsConfig)
 @UseGuards(WsJwtGuard)
@@ -32,17 +42,17 @@ export class RoomGateWay implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  handleConnection(client: Socket): void {
+  handleConnection(client: IAuthenticatedSocket): void {
     this.logger.log(`Client connected: ${client.id}`);
   }
 
-  handleDisconnect(client: Socket): void {
+  handleDisconnect(client: IAuthenticatedSocket): void {
     this.logger.log(`Client disconnected: ${client.id}`);
   }
 
   @SubscribeMessage("create-room")
   async handleCreateRoom(
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: IAuthenticatedSocket,
     @MessageBody() name: { roomName: string },
   ): Promise<void> {
     const roomId = uuid4();
@@ -78,7 +88,7 @@ export class RoomGateWay implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage("leave-room")
   async handleLeaveRoom(
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: IAuthenticatedSocket,
     @MessageBody() data: { roomId: string },
   ): Promise<void> {
     try {
@@ -112,7 +122,7 @@ export class RoomGateWay implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage("get-room")
   async handleGetRooms(
     @MessageBody() data: { roomId: string },
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: IAuthenticatedSocket,
   ): Promise<void> {
     const roomData = await this.redisService.getRoom(data.roomId);
     if (!roomData) {
@@ -131,7 +141,7 @@ export class RoomGateWay implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage("join-room")
   async handleJoinRoom(
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: IAuthenticatedSocket,
     @MessageBody() data: { roomId: string },
   ): Promise<void> {
     try {
@@ -194,14 +204,14 @@ export class RoomGateWay implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage("get-all-rooms")
-  async handlegetAllrooms(@ConnectedSocket() client: Socket): Promise<void> {
+  async handlegetAllrooms(@ConnectedSocket() client: IAuthenticatedSocket): Promise<void> {
     const data = await this.redisService.getAllRooms();
     client.emit("set-all-rooms", data);
   }
 
   @SubscribeMessage("countdown")
   async handleCountdown(
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: IAuthenticatedSocket,
     @MessageBody() roomId: string,
   ): Promise<void> {
     const userId = client.data.user.id;
@@ -233,34 +243,36 @@ export class RoomGateWay implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(roomId).emit("game-started", { key: roomId, data: roomData });
 
     // Start 10-second countdown
-    setTimeout(async () => {
-      try {
-        // grab random paragraph
-        const paragraph = await this.paragraphService.getRandomParagraph();
+    setTimeout((): void => {
+      void (async (): Promise<void> => {
+        try {
+          // grab random paragraph
+          const paragraph = await this.paragraphService.getRandomParagraph();
 
-        // add paragraph to room
-        const updatedRoomData = await this.redisService.getRoom(roomId);
-        if (updatedRoomData) {
-          // Emit paragraph to all players in the room
-          this.server.to(roomId).emit("paragraph-ready", {
-            roomId,
-            paragraph: paragraph.content,
-            paragraphId: paragraph.id,
+          // add paragraph to room
+          const updatedRoomData = await this.redisService.getRoom(roomId);
+          if (updatedRoomData) {
+            // Emit paragraph to all players in the room
+            this.server.to(roomId).emit("paragraph-ready", {
+              roomId,
+              paragraph: paragraph.content,
+              paragraphId: paragraph.id,
+            });
+          }
+        } catch (error) {
+          this.logger.error("Error fetching paragraph", error);
+          this.server.to(roomId).emit("game-error", {
+            message: "Failed to load game content",
           });
         }
-      } catch (error) {
-        this.logger.error("Error fetching paragraph", error);
-        this.server.to(roomId).emit("game-error", {
-          message: "Failed to load game content",
-        });
-      }
+      })();
     }, 10000);
   }
 
   @SubscribeMessage("player-finished")
   async handlePlayerFinished(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: { roomId: string; stats: IPlayerStats },
+    @ConnectedSocket() client: IAuthenticatedSocket,
+    @MessageBody() data: { roomId: string; stats: IPlayerStatsResponse },
   ): Promise<void> {
     const userId = client.data.user.id;
     const roomData = await this.redisService.getRoom(data.roomId);
@@ -318,7 +330,7 @@ export class RoomGateWay implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage("live-progress")
   async handleLiveProgress(
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: IAuthenticatedSocket,
     @MessageBody() data: { progress: number; wpm?: number; accuracy?: number; roomId: string },
   ): Promise<void> {
     try {
@@ -361,7 +373,7 @@ export class RoomGateWay implements OnGatewayConnection, OnGatewayDisconnect {
         data: roomData,
       });
     } catch (error) {
-      // Error handling can be added here if needed
+      this.logger.error("Error updating live progress", error);
     }
   }
 }

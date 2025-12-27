@@ -6,3 +6,11 @@ export interface IJwtPayload {
   iat?: number;
   exp?: number;
 }
+
+export interface IRefreshTokenPayload {
+  sub: number;
+  userId: number;
+  type: "refresh";
+  iat?: number;
+  exp?: number;
+}

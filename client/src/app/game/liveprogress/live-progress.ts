@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, signal, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 
-import { IPlayerData } from '../../interfaces/socket.interfaces';
 import { IRoom } from '../../interfaces/room.interface';
+import { IPlayerData } from '../../interfaces/socket.interfaces';
 import { RoomService } from '../../services/room.service';
 import { SocketService } from '../../services/socket.service';
 

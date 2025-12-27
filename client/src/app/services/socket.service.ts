@@ -1,9 +1,8 @@
-import { Injectable, NgZone, inject } from '@angular/core';
+import { inject, Injectable, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 
-import { API_BASE_URL } from '../constants/index';
 import { IRoom } from '../interfaces/room.interface';
 import { RoomService } from './room.service';
 

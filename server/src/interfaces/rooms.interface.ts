@@ -1,15 +1,17 @@
+export interface IPlayerStats {
+  wpm?: number;
+  accuracy?: number;
+  totalMistakes?: number;
+  timeTakenSeconds?: number;
+  progress?: number;
+  finished?: boolean;
+}
+
 export interface IPlayer {
   userId: number;
   userName: string;
   isCreated: boolean;
-  stats?: {
-    wpm?: number;
-    accuracy?: number;
-    totalMistakes?: number;
-    timeTakenSeconds?: number;
-    progress?: number;
-    finished?: boolean;
-  };
+  stats?: IPlayerStats;
 }
 
 export interface IRoomData {
@@ -23,7 +25,7 @@ export interface IFetchRooms {
   data: IRoomData;
 }
 
-export interface IPlayerStats {
+export interface IPlayerStatsResponse {
   wpm: number;
   accuracy: number;
   totalMistakes: number;

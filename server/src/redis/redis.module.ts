@@ -1,4 +1,4 @@
-import { Global, Module } from "@nestjs/common";
+import { Global, Logger, Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { createClient } from "redis";
 import { RedisService } from "./redis.service";
@@ -11,6 +11,7 @@ import { RedisService } from "./redis.service";
       provide: "REDIS_CLIENT",
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => {
+        const logger = new Logger("RedisModule");
         const client = createClient({
           socket: {
             host: config.get<string>("REDIS_HOST"),
@@ -20,7 +21,7 @@ import { RedisService } from "./redis.service";
           database: config.get<number>("REDIS_DB"),
         });
         client.on("error", err => {
-          // Redis connection error will be handled by the application
+          logger.error("Redis connection error:", err);
         });
         await client.connect();
         return client;

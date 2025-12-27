@@ -1,12 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
-import { inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from '../identity/services/auth.service';
-import { IRoom } from '../interfaces/room.interface';
 import { IUser } from '../interfaces/auth.interfaces';
+import { IRoom } from '../interfaces/room.interface';
 import { Modal } from '../modal/modal';
 import { RoomService } from '../services/room.service';
 import { SocketService } from '../services/socket.service';

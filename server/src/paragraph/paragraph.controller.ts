@@ -1,7 +1,7 @@
 import { Controller, Get, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
-import { ParagraphService } from "./paragraph.service";
 import { IParagraphResponse } from "../interfaces/paragraph.interface";
+import { ParagraphService } from "./paragraph.service";
 
 @Controller("paragraphs")
 @UseGuards(JwtAuthGuard)

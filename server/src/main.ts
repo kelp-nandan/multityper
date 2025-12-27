@@ -27,4 +27,4 @@ async function bootstrap() {
 
   // Server startup completed
 }
-bootstrap();
+void bootstrap();

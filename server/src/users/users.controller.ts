@@ -1,8 +1,8 @@
 import { Controller, Get, Request, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { ErrorHandler } from "../common/error-handler";
-import { UsersService } from "./users.service";
 import { IUserProfile } from "./interfaces";
+import { UsersService } from "./users.service";
 
 @Controller("api/users")
 export class UsersController {
@@ -24,9 +24,10 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Get("profile")
-  async getProfile(
-    @Request() req: { user: { id: number; email: string; name: string } },
-  ): Promise<{ message: string; data: { user: { id: number; email: string; name: string } } }> {
+  getProfile(@Request() req: { user: { id: number; email: string; name: string } }): {
+    message: string;
+    data: { user: { id: number; email: string; name: string } };
+  } {
     try {
       return {
         message: "Profile retrieved successfully",
