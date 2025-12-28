@@ -1,10 +1,8 @@
 <div class="auth-glass-page">
-  <!-- SVG Background Image -->
   <div class="bg-svg-container">
     <img src="/asset/typing_race_bg.svg" alt="Background" class="bg-svg-image" />
   </div>
 
-  <!-- Glass Card - Left Side -->
   <div class="auth-glass-card">
     <div class="auth-header">
       <div class="logo">⌨️⚡</div>
@@ -22,17 +20,14 @@
       </p>
     </div>
 
-    <!-- SUCCESS -->
     @if (successMessage()) {
       <div class="alert success">{{ successMessage() }}</div>
     }
 
-    <!-- ERROR -->
     @if (errorMessage()) {
       <div class="alert error">{{ errorMessage() }}</div>
     }
 
-    <!-- LOGIN FORM -->
     @if (isLoginMode()) {
       <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
         <div class="field">
@@ -51,7 +46,6 @@
       </form>
     }
 
-    <!-- REGISTER FORM -->
     @if (!isLoginMode()) {
       <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
         <div class="field">
@@ -90,7 +84,6 @@
       </form>
     }
 
-    <!-- FOOTER -->
     <div class="auth-footer">
       <span>
         {{ isLoginMode() ? 'Don’t have an account?' : 'Already have an account?' }}

@@ -1,0 +1,134 @@
+<svg viewBox="0 0 1400 900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#9b7de8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c8b5f0;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="rocketGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#9b7de8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7b5dc8;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="flameGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffd93d;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ffb03d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff8c3d;stop-opacity:1" />
+    </linearGradient>
+    
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1400" height="900" fill="url(#bgGradient)"/>
+  
+  <!-- Cloud shapes -->
+  <ellipse cx="200" cy="400" rx="180" ry="60" fill="#ffffff" opacity="0.1"/>
+  <ellipse cx="1100" cy="300" rx="200" ry="70" fill="#ffffff" opacity="0.1"/>
+  <ellipse cx="600" cy="650" rx="220" ry="80" fill="#ffffff" opacity="0.1"/>
+  <ellipse cx="900" cy="500" rx="150" ry="50" fill="#ffffff" opacity="0.1"/>
+  
+  <!-- Stars -->
+  <circle cx="150" cy="100" r="2" fill="#ffffff" opacity="0.8"/>
+  <circle cx="350" cy="150" r="3" fill="#ffffff" opacity="0.6"/>
+  <circle cx="550" cy="80" r="2" fill="#ffffff" opacity="0.7"/>
+  <circle cx="750" cy="120" r="2.5" fill="#ffffff" opacity="0.8"/>
+  <circle cx="950" cy="90" r="2" fill="#ffffff" opacity="0.6"/>
+  <circle cx="1150" cy="140" r="3" fill="#ffffff" opacity="0.7"/>
+  <circle cx="1300" cy="200" r="2" fill="#ffffff" opacity="0.8"/>
+  <circle cx="250" cy="300" r="2.5" fill="#ffffff" opacity="0.6"/>
+  <circle cx="1200" cy="450" r="2" fill="#ffffff" opacity="0.7"/>
+  <circle cx="100" cy="550" r="3" fill="#ffffff" opacity="0.8"/>
+  <circle cx="1320" cy="600" r="2" fill="#ffffff" opacity="0.6"/>
+  
+  <!-- Glowing stars -->
+  <circle cx="180" cy="260" r="3" fill="#ffd93d" opacity="0.9" filter="url(#glow)"/>
+  <circle cx="520" cy="200" r="2.5" fill="#ffd93d" opacity="0.8" filter="url(#glow)"/>
+  <circle cx="880" cy="180" r="3" fill="#ffd93d" opacity="0.9" filter="url(#glow)"/>
+  <circle cx="1250" cy="350" r="2.5" fill="#ffd93d" opacity="0.8" filter="url(#glow)"/>
+  
+  <!-- Keyboard -->
+  <g transform="translate(150, 520)">
+    <!-- Keyboard base with shadow -->
+    <rect x="5" y="5" width="280" height="180" rx="12" fill="#5a4a8a" opacity="0.3"/>
+    <rect x="0" y="0" width="280" height="180" rx="12" fill="#8a7ab8" opacity="0.9"/>
+    
+    <!-- Keyboard keys -->
+    <g fill="#ffffff" opacity="0.8">
+      <!-- Row 1 -->
+      <rect x="15" y="15" width="30" height="30" rx="3"/>
+      <rect x="50" y="15" width="30" height="30" rx="3"/>
+      <rect x="85" y="15" width="30" height="30" rx="3"/>
+      <rect x="120" y="15" width="30" height="30" rx="3"/>
+      <rect x="155" y="15" width="30" height="30" rx="3"/>
+      <rect x="190" y="15" width="30" height="30" rx="3"/>
+      <rect x="225" y="15" width="30" height="30" rx="3"/>
+      
+      <!-- Row 2 -->
+      <rect x="15" y="50" width="30" height="30" rx="3"/>
+      <rect x="50" y="50" width="30" height="30" rx="3"/>
+      <rect x="85" y="50" width="30" height="30" rx="3"/>
+      <rect x="120" y="50" width="30" height="30" rx="3"/>
+      <rect x="155" y="50" width="30" height="30" rx="3"/>
+      <rect x="190" y="50" width="30" height="30" rx="3"/>
+      <rect x="225" y="50" width="30" height="30" rx="3"/>
+      
+      <!-- Row 3 -->
+      <rect x="15" y="85" width="30" height="30" rx="3"/>
+      <rect x="50" y="85" width="30" height="30" rx="3"/>
+      <rect x="85" y="85" width="30" height="30" rx="3"/>
+      <rect x="120" y="85" width="30" height="30" rx="3"/>
+      <rect x="155" y="85" width="30" height="30" rx="3"/>
+      <rect x="190" y="85" width="30" height="30" rx="3"/>
+      <rect x="225" y="85" width="30" height="30" rx="3"/>
+      
+      <!-- Row 4 -->
+      <rect x="15" y="120" width="50" height="30" rx="3"/>
+      <rect x="70" y="120" width="130" height="30" rx="3"/>
+      <rect x="205" y="120" width="50" height="30" rx="3"/>
+    </g>
+  </g>
+  
+  <!-- Rocket -->
+  <g transform="translate(320, 280)">
+    <!-- Rocket flame (animated) -->
+    <ellipse cx="45" cy="130" rx="15" ry="30" fill="url(#flameGradient)" opacity="0.9">
+      <animate attributeName="ry" values="30;40;30" dur="0.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.9;0.7;0.9" dur="0.5s" repeatCount="indefinite"/>
+    </ellipse>
+    
+    <!-- Rocket body shadow -->
+    <ellipse cx="48" cy="58" rx="38" ry="80" fill="#5a4a8a" opacity="0.3"/>
+    
+    <!-- Rocket body -->
+    <ellipse cx="45" cy="55" rx="38" ry="80" fill="url(#rocketGradient)"/>
+    
+    <!-- Rocket window -->
+    <circle cx="45" cy="35" r="18" fill="#ffffff" opacity="0.3"/>
+    <circle cx="45" cy="35" r="15" fill="#6b8de8" opacity="0.6"/>
+    
+    <!-- Rocket fins -->
+    <path d="M 15 85 L 5 115 L 25 105 Z" fill="#6b5da8" opacity="0.9"/>
+    <path d="M 75 85 L 85 115 L 65 105 Z" fill="#6b5da8" opacity="0.9"/>
+    
+    <!-- Rocket base ring -->
+    <ellipse cx="45" cy="110" rx="25" ry="8" fill="#8a6dc8" opacity="0.8"/>
+  </g>
+  
+  <!-- Additional sparkles near rocket -->
+  <circle cx="380" cy="240" r="2" fill="#ffffff" opacity="0.9">
+    <animate attributeName="opacity" values="0.9;0.3;0.9" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="420" cy="260" r="2.5" fill="#ffffff" opacity="0.8">
+    <animate attributeName="opacity" values="0.8;0.4;0.8" dur="1.8s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="350" cy="310" r="2" fill="#ffffff" opacity="0.9">
+    <animate attributeName="opacity" values="0.9;0.3;0.9" dur="2s" repeatCount="indefinite"/>
+  </circle>
+</svg>
