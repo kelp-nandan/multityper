@@ -41,17 +41,15 @@ services:
       interval: 10s 
       timeout: 5s
       retries: 5
-  
   # Backend server (NO VOLUMES -code into image)
   server:
     build:
       context: ./server
       dockerfile: Dockerfile
     container_name: multityper-server
-    ports:
-      - "${PORT}:3000"
     env_file:
       - ./server/.env
+    command: sh -c "npm run db:migrate && npm run start:dev"
     depends_on:
       postgres:
         condition: service_healthy
@@ -59,6 +57,8 @@ services:
         condition: service_healthy
     networks:
       - multityper-network
+    expose:
+      - "3000"
 
   # Frontend client (NO VOLUMES -code into image)
   client:
@@ -66,9 +66,23 @@ services:
       context: ./client
       dockerfile: Dockerfile
     container_name: multityper-client
-    ports:
-      - "4200:4200"
     depends_on:
+      - server
+    networks:
+      - multityper-network
+    expose:
+      - "4200"
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: multityper-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - client
       - server
     networks:
       - multityper-network
