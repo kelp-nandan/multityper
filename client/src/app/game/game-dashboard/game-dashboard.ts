@@ -128,13 +128,8 @@ export class GameDashboard implements OnInit, OnDestroy {
         this.redirectCountdown.update((count) => count - 1);
 
         if (this.redirectCountdown() <= 0) {
+          //redirect to leaderboard when server recieves result from all players
           clearInterval(countdownInterval);
-          // go to leaderboard when timer ends
-          this.router.navigate(['/leaderboard'], {
-            queryParams: {
-              roomId: this.currentRoomId,
-            },
-          });
         }
       });
     }, 1000);

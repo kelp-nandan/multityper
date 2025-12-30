@@ -35,6 +35,6 @@ export class LiveProgress implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.socket.off('room-updated');
+    // this.socket.off('room-updated');
   }
 }

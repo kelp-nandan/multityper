@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database service
+  postgres:
+    image: postgres:16-alpine
+    container_name: multityper-postgres
+    env_file:
+      - ./server/.env
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports: 
+      - "${DATABASE_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - multityper-network 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
+  # Redis cache
+  redis:
+    image: redis:7-alpine
+    container_name: multityper-redis
+    env_file:
+      - ./server/.env
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis_data:/data 
+    networks:
+      - multityper-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s 
+      timeout: 5s
+      retries: 5
+  
+  # Backend server (NO VOLUMES -code into image)
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: multityper-server
+    ports:
+      - "${PORT}:3000"
+    env_file:
+      - ./server/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - multityper-network
+
+  # Frontend client (NO VOLUMES -code into image)
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: multityper-client
+    ports:
+      - "4200:4200"
+    depends_on:
+      - server
+    networks:
+      - multityper-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  multityper-network:
+    driver: bridge

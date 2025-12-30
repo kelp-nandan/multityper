@@ -23,6 +23,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  await app.listen(ENV.PORT);
+  await app.listen(ENV.PORT,'0.0.0.0');
 }
 void bootstrap();

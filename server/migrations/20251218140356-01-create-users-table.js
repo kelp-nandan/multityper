@@ -14,12 +14,12 @@ module.exports = {
         created_by INTEGER REFERENCES users(id),
         updated_by INTEGER REFERENCES users(id)
       );
-    );
+    `);
 
     // index on email
     await queryInterface.sequelize.query(`
       CREATE INDEX idx_users_email ON users(email);
-    );
+    `);
 
     // auto-update timestamp trigger
     await queryInterface.sequelize.query(`

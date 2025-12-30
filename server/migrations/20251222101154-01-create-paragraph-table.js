@@ -2,7 +2,7 @@
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable('Paragraphs', {
+        await queryInterface.createTable('paragraphs', {
             paragraph_id: {
                 allowNull: false,
                 autoIncrement: true,
@@ -66,10 +66,10 @@ module.exports = {
             { content: "Success is built through daily intentional actions Small efforts create momentum Never stop learning and improving", createdAt: now, updatedAt: now }
         ];
 
-        return queryInterface.bulkInsert('Paragraphs', stanzas);
+        return queryInterface.bulkInsert('paragraphs', stanzas);
     },
 
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable('Paragraphs');
+        await queryInterface.dropTable('paragraphs');
     }
 };

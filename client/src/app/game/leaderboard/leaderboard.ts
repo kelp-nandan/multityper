@@ -69,7 +69,7 @@ export class LeaderBoard implements OnInit, OnDestroy {
           .sort((a: ILeaderboardDisplay, b: ILeaderboardDisplay) => {
             if (b.wpm !== a.wpm) return b.wpm - a.wpm;
             return b.accuracy - a.accuracy;
-          });
+          }); 
       }
     });
     this.subscriptions.push(paramsSub);
